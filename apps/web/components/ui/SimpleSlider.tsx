@@ -142,11 +142,17 @@ const onTouchMove = (e: React.TouchEvent) => {
   };
 
   return (
-    <section className="relative w-full py-12 sm:py-20 overflow-hidden">
+    <section className="relative w-full py-16 sm:py-24 overflow-hidden bg-gradient-to-b from-white to-sky-50">
       <div className="container mx-auto px-4 sm:px-8 md:px-16">
-        <p className="flex justify-center mb-8 font-bold text-lg">
-          Our Services Partners
-        </p>
+        <div className="text-center mb-14">
+    <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
+        Trusted Airline Partners
+    </h2>
+
+    <p className="mt-3 text-gray-500 text-lg">
+        We proudly work with leading international airlines to offer the best fares and seamless travel experiences.
+    </p>
+</div>
 
         <div className="mt-10">
           {/* Outer: clips overflow, listens to mouse/touch */}
@@ -167,16 +173,44 @@ const onTouchMove = (e: React.TouchEvent) => {
               className="flex w-max items-center will-change-transform"
             >
               {allAirlines.map((airline, i) => (
-                <Image
-                  key={i}
-                  src={airline.src}
-                  alt={airline.alt}
-                  width={200}
-                  height={100}
-                  draggable={false}
-                  className="h-14 sm:h-16 w-auto object-contain mx-12 pointer-events-none"
-                />
-              ))}
+  <div
+    key={i}
+    className="
+      mx-5
+      flex
+      h-28
+      w-56
+      items-center
+      justify-center
+      rounded-2xl
+      bg-white
+      shadow-md
+      transition-all
+      duration-300
+      hover:-translate-y-2
+      hover:shadow-xl
+      hover:scale-105
+      border
+      border-gray-100
+      flex-shrink-0
+    "
+  >
+    <Image
+      src={airline.src}
+      alt={airline.alt}
+      width={180}
+      height={90}
+      draggable={false}
+      className="
+        max-h-20
+        max-w-[180px]
+        object-contain
+        pointer-events-none
+        select-none
+      "
+    />
+  </div>
+))}
             </div>
           </div>
         </div>
