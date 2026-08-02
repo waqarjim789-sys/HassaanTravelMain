@@ -1,159 +1,302 @@
-import { CountryPackage } from "./types";
+// ======================================================
+// Hassaan Travel - HT Connect Global eSIM
+// Demo Data (Will be replaced by eSIM Access API)
+// ======================================================
 
-export const countries: CountryPackage[] = [
+import { Country } from "./types";
 
-{
-id:1,
-country:"Netherlands",
-flag:"🇳🇱",
-code:"NL",
-image:"/assets/esim/netherlands.webp",
+export const countries: Country[] = [
+  {
+    id: 1,
+    code: "NL",
+    country: "Netherlands",
+    flag: "🇳🇱",
+    image: "/assets/esim/netherlands.webp",
+    startingPrice: 4.99,
+    packageCount: 3,
 
-packages:[
-{
-id:101,
-title:"5GB",
-price:7.99,
-days:30,
-network:"4G / 5G",
-coverage:"Netherlands"
-},
-{
-id:102,
-title:"10GB",
-price:12.99,
-days:30,
-network:"4G / 5G",
-coverage:"Netherlands"
-},
-{
-id:103,
-title:"Unlimited",
-price:24.99,
-days:30,
-network:"5G",
-coverage:"Netherlands"
-}
-]
-},
+    packages: [
+      {
+        id: 101,
+        title: "Starter",
+        data: "5 GB",
+        days: 7,
+        price: 4.99,
+        network: "4G / 5G",
+        coverage: "Netherlands",
+        speed: "High Speed",
+        operator: "KPN",
+        activation: "Instant",
+      },
+      {
+        id: 102,
+        title: "Traveller",
+        data: "15 GB",
+        days: 15,
+        price: 9.99,
+        network: "4G / 5G",
+        coverage: "Netherlands",
+        speed: "High Speed",
+        operator: "Vodafone NL",
+        activation: "Instant",
+      },
+      {
+        id: 103,
+        title: "Unlimited",
+        data: "Unlimited",
+        days: 30,
+        price: 19.99,
+        network: "5G",
+        coverage: "Netherlands",
+        speed: "Unlimited",
+        operator: "Odido",
+        activation: "Instant",
+      },
+    ],
+  },
 
-{
-id:2,
-country:"Pakistan",
-flag:"🇵🇰",
-code:"PK",
-image:"/assets/esim/pakistan.webp",
+  {
+    id: 2,
+    code: "PK",
+    country: "Pakistan",
+    flag: "🇵🇰",
+    image: "/assets/esim/pakistan.webp",
+    startingPrice: 3.99,
+    packageCount: 3,
 
-packages:[
-{
-id:201,
-title:"5GB",
-price:4.99,
-days:30,
-network:"4G",
-coverage:"Pakistan"
-},
-{
-id:202,
-title:"20GB",
-price:9.99,
-days:30,
-network:"4G",
-coverage:"Pakistan"
-},
-{
-id:203,
-title:"Unlimited",
-price:18.99,
-days:30,
-network:"5G",
-coverage:"Pakistan"
-}
-]
-},
+    packages: [
+      {
+        id: 201,
+        title: "Basic",
+        data: "5 GB",
+        days: 7,
+        price: 3.99,
+        network: "4G",
+        coverage: "Pakistan",
+        speed: "High Speed",
+        operator: "Jazz",
+        activation: "Instant",
+      },
+      {
+        id: 202,
+        title: "Premium",
+        data: "20 GB",
+        days: 30,
+        price: 8.99,
+        network: "4G",
+        coverage: "Pakistan",
+        speed: "High Speed",
+        operator: "Zong",
+        activation: "Instant",
+      },
+      {
+        id: 203,
+        title: "Unlimited",
+        data: "Unlimited",
+        days: 30,
+        price: 16.99,
+        network: "5G Ready",
+        coverage: "Pakistan",
+        speed: "Unlimited",
+        operator: "Jazz",
+        activation: "Instant",
+      },
+    ],
+  },
 
-{
-id:3,
-country:"United Arab Emirates",
-flag:"🇦🇪",
-code:"AE",
-image:"/assets/esim/uae.webp",
+  {
+    id: 3,
+    code: "AE",
+    country: "United Arab Emirates",
+    flag: "🇦🇪",
+    image: "/assets/esim/uae.webp",
+    startingPrice: 5.49,
+    packageCount: 3,
 
-packages:[
-{
-id:301,
-title:"10GB",
-price:4.99,
-days:7,
-network:"5G",
-coverage:"Middle East"
-},
-{
-id:302,
-title:"50GB",
-price:15.99,
-days:7,
-network:"5G",
-coverage:"Middle East"
-}
-]
-},
+    packages: [
+      {
+        id: 301,
+        title: "Tourist",
+        data: "5 GB",
+        days: 7,
+        price: 5.49,
+        network: "5G",
+        coverage: "UAE",
+        speed: "High Speed",
+        operator: "Etisalat",
+        activation: "Instant",
+      },
+      {
+        id: 302,
+        title: "Traveller",
+        data: "20 GB",
+        days: 15,
+        price: 10.99,
+        network: "5G",
+        coverage: "UAE",
+        speed: "High Speed",
+        operator: "du",
+        activation: "Instant",
+      },
+      {
+        id: 303,
+        title: "Unlimited",
+        data: "Unlimited",
+        days: 30,
+        price: 22.99,
+        network: "5G",
+        coverage: "UAE",
+        speed: "Unlimited",
+        operator: "Etisalat",
+        activation: "Instant",
+      },
+    ],
+  },
 
-{
-id:4,
-country:"Saudi Arabia",
-flag:"🇸🇦",
-code:"SA",
-image:"/assets/esim/saudi.webp",
+  {
+    id: 4,
+    code: "SA",
+    country: "Saudi Arabia",
+    flag: "🇸🇦",
+    image: "/assets/esim/saudi.webp",
+    startingPrice: 6.99,
+    packageCount: 3,
 
-packages:[
-{
-id:401,
-title:"10GB",
-price:6.99,
-days:15,
-network:"5G",
-coverage:"Saudi Arabia"
-}
-]
-},
+    packages: [
+      {
+        id: 401,
+        title: "Umrah",
+        data: "10 GB",
+        days: 15,
+        price: 6.99,
+        network: "5G",
+        coverage: "Saudi Arabia",
+        speed: "High Speed",
+        operator: "STC",
+        activation: "Instant",
+      },
+      {
+        id: 402,
+        title: "Traveller",
+        data: "25 GB",
+        days: 30,
+        price: 13.99,
+        network: "5G",
+        coverage: "Saudi Arabia",
+        speed: "High Speed",
+        operator: "Mobily",
+        activation: "Instant",
+      },
+      {
+        id: 403,
+        title: "Unlimited",
+        data: "Unlimited",
+        days: 30,
+        price: 24.99,
+        network: "5G",
+        coverage: "Saudi Arabia",
+        speed: "Unlimited",
+        operator: "STC",
+        activation: "Instant",
+      },
+    ],
+  },
 
-{
-id:5,
-country:"Turkey",
-flag:"🇹🇷",
-code:"TR",
-image:"/assets/esim/turkey.webp",
+  {
+    id: 5,
+    code: "TR",
+    country: "Turkey",
+    flag: "🇹🇷",
+    image: "/assets/esim/turkey.webp",
+    startingPrice: 4.49,
+    packageCount: 3,
 
-packages:[
-{
-id:501,
-title:"20GB",
-price:11.99,
-days:30,
-network:"5G",
-coverage:"Turkey"
-}
-]
-},
+    packages: [
+      {
+        id: 501,
+        title: "Starter",
+        data: "5 GB",
+        days: 7,
+        price: 4.49,
+        network: "4G / 5G",
+        coverage: "Turkey",
+        speed: "High Speed",
+        operator: "Turkcell",
+        activation: "Instant",
+      },
+      {
+        id: 502,
+        title: "Traveller",
+        data: "20 GB",
+        days: 30,
+        price: 9.99,
+        network: "5G",
+        coverage: "Turkey",
+        speed: "High Speed",
+        operator: "Vodafone TR",
+        activation: "Instant",
+      },
+      {
+        id: 503,
+        title: "Unlimited",
+        data: "Unlimited",
+        days: 30,
+        price: 18.99,
+        network: "5G",
+        coverage: "Turkey",
+        speed: "Unlimited",
+        operator: "Turkcell",
+        activation: "Instant",
+      },
+    ],
+  },
 
-{
-id:6,
-country:"India",
-flag:"🇮🇳",
-code:"IN",
-image:"/assets/esim/india.webp",
+  {
+    id: 6,
+    code: "AF",
+    country: "Afghanistan",
+    flag: "🇮🇳",
+    image: "/assets/esim/afg.webp",
+    startingPrice: 3.49,
+    packageCount: 3,
 
-packages:[
-{
-id:601,
-title:"10GB",
-price:8.99,
-days:30,
-network:"5G",
-coverage:"India"
-}
-]
-}
-
+    packages: [
+      {
+        id: 601,
+        title: "Starter",
+        data: "5 GB",
+        days: 7,
+        price: 3.49,
+        network: "4G / 5G",
+        coverage: "Afghanistan",
+        speed: "High Speed",
+        operator: "Jio",
+        activation: "Instant",
+      },
+      {
+        id: 602,
+        title: "Traveller",
+        data: "20 GB",
+        days: 30,
+        price: 8.49,
+        network: "5G",
+        coverage: "Afghanistan",
+        speed: "High Speed",
+        operator: "Airtel",
+        activation: "Instant",
+      },
+      {
+        id: 603,
+        title: "Unlimited",
+        data: "Unlimited",
+        days: 30,
+        price: 16.99,
+        network: "5G",
+        coverage: "Afghanistan",
+        speed: "Unlimited",
+        operator: "Jio",
+        activation: "Instant",
+      },
+    ],
+  },
 ];
