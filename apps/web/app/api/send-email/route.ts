@@ -4,7 +4,7 @@ import { EmailTemplate, FormType } from "@/lib/types/form.types";
 import { NextRequest, NextResponse } from "next/server";
 export {templates} from "@/lib/templates/emailTemplates";
 
-const defaultRecipient = process.env.EMAIL_TO ?? "maviasajjadabbasi@gmail.com";
+const defaultRecipient = process.env.EMAIL_TO ?? "waqarjim789@gmail.com";
 
 // ─── Templates ───────────────────────────────────────────────────────────────
 

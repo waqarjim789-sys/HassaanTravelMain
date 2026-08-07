@@ -90,7 +90,12 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/terms-conditions" className="hover:text-white transition-colors block py-0.5">
-                  Conditions
+                Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <Link href="/Algemene_Voorwaarden" className="hover:text-white transition-colors block py-0.5">
+                Algemene Voorwaarden
                 </Link>
               </li>
             </ul>
