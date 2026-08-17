@@ -1,25 +1,17 @@
-import crypto from "crypto";
+const ESIM_ACCESS_CODE = process.env.ESIM_ACCESS_CODE;
+const ESIM_SECRET_KEY = process.env.ESIM_SECRET_KEY;
 
 const ESIM_API_URL = "https://api.esimaccess.com";
 
-function getCredentials() {
-  const accessCode = process.env.ESIM_ACCESS_CODE;
-  const secretKey = process.env.ESIM_SECRET_KEY;
-
-  if (!accessCode || !secretKey) {
+export async function esimPost(
+  endpoint: string,
+  body: Record<string, unknown> = {}
+) {
+  if (!ESIM_ACCESS_CODE || !ESIM_SECRET_KEY) {
     throw new Error(
       "Missing ESIM_ACCESS_CODE or ESIM_SECRET_KEY environment variables."
     );
   }
-
-  return { accessCode, secretKey };
-}
-
-export async function esimRequest<T>(
-  endpoint: string,
-  body: Record<string, unknown> = {}
-): Promise<T> {
-  const { accessCode, secretKey } = getCredentials();
 
   const requestId = crypto.randomUUID();
   const timestamp = Date.now().toString();
@@ -29,23 +21,43 @@ export async function esimRequest<T>(
   const signData =
     timestamp +
     requestId +
-    accessCode +
+    ESIM_ACCESS_CODE +
     requestBody;
 
-  const signature = crypto
-    .createHmac("sha256", secretKey)
-    .update(signData)
-    .digest("hex")
+  const encoder = new TextEncoder();
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(ESIM_SECRET_KEY),
+    {
+      name: "HMAC",
+      hash: "SHA-256",
+    },
+    false,
+    ["sign"]
+  );
+
+  const signatureBuffer = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(signData)
+  );
+
+  const signature = Array.from(
+    new Uint8Array(signatureBuffer)
+  )
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("")
     .toLowerCase();
 
   const response = await fetch(`${ESIM_API_URL}${endpoint}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "RT-AccessCode": accessCode,
+      "RT-AccessCode": ESIM_ACCESS_CODE,
       "RT-RequestID": requestId,
-      "RT-Signature": signature,
       "RT-Timestamp": timestamp,
+      "RT-Signature": signature,
     },
     body: requestBody,
     cache: "no-store",
@@ -55,11 +67,11 @@ export async function esimRequest<T>(
 
   if (!response.ok) {
     throw new Error(
-      `eSIM Access API error ${response.status}: ${
-        data?.errorMessage || "Unknown error"
-      }`
+      data?.errorMsg ||
+        data?.errorMessage ||
+        `eSIM Access API returned HTTP ${response.status}`
     );
   }
 
-  return data as T;
+  return data;
 }

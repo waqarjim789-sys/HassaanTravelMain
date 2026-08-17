@@ -66,9 +66,9 @@ export default function CountryCard({
               Starting From
             </span>
 
-            <span className="font-bold text-[#0F91D5] text-lg">
-              €{country.startingPrice.toFixed(2)}
-            </span>
+           <span className="font-bold text-[#0F91D5] text-lg">
+ 		 €{country.startingPrice}
+	</span>
 
           </div>
 

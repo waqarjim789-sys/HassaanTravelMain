@@ -323,7 +323,7 @@ const BookingSearchForm = () => {
       {/* STATUS MESSAGES */}
       {status === "success" && (
         <p className="text-green-600 text-xl text-center mt-3">
-          ✅ Request sent successfully! We will get back to you soon.
+          ✅ Your Request has been sent successfully. For faster and direct prices, contact us right away via the WhatsApp Icon or call us on +31 (0) 10 485 7673.
         </p>
       )}
       {status === "error" && (
