@@ -43,9 +43,7 @@ export async function esimPost(
     encoder.encode(signData)
   );
 
-  const signature = Array.from(
-    new Uint8Array(signatureBuffer)
-  )
+  const signature = Array.from(new Uint8Array(signatureBuffer))
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("")
     .toLowerCase();
@@ -74,4 +72,20 @@ export async function esimPost(
   }
 
   return data;
+}
+
+/**
+ * Backward-compatible wrapper for existing eSIM API routes.
+ *
+ * Existing routes can continue using:
+ *   esimRequest(endpoint, body)
+ *
+ * New code should preferably use:
+ *   esimPost(endpoint, body)
+ */
+export async function esimRequest(
+  endpoint: string,
+  body: Record<string, unknown> = {}
+) {
+  return esimPost(endpoint, body);
 }
