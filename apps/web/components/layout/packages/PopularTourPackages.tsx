@@ -6,6 +6,37 @@ import { PackagesBenefits } from "./PackagesBenefits";
 
 const packages = [
   {
+    id: 0,
+    images: Array.from({ length: 6 }, (_, i) => `/assets/packages/Afghanistan/${i + 1}.webp`),
+    category: "Afghanistan",
+    categoryColor: "bg-green-500",
+    price: "2,100",
+    title: "Afghanistan",
+    location: "Arusha – Arusha",
+    duration: "6 Days / 5 Nights",
+    stay: {
+      name: "Hotels / Lodges / Camps",
+      room: "As per itinerary",
+    },
+    packages: [
+      "Group tour",
+      "Pashto-speaking driver/guide",
+      "Guaranteed departure (min 2 participants)",
+      "Small groups max 7 participants",
+      "4x4 vehicles",
+      "Visits to 2 UNESCO World Heritage Sites",
+      "Accommodation included",
+      "Park entrance fees included",
+    ],
+    experice: [
+      "Game drives",
+      "Wildlife safari experience",
+      "Cultural visits",
+      "UNESCO heritage sites",
+    ],
+    nextDeparture: "On request",
+  },
+  {
     id: 1,
     images: Array.from({ length: 6 }, (_, i) => `/assets/packages/Tanzania/${i + 1}.webp`),
     category: "Africa",
