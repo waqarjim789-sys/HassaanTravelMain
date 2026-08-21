@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { unstable_cache } from "next/cache";
 import { esimPost } from "@/lib/esim/client";
-import {
-  getCustomerPrice,
-  formatCustomerPrice,
-} from "@/lib/esim/pricing";
+import { getCustomerPrice, formatCustomerPrice } from "@/lib/esim/pricing";
 
 type PackageItem = {
   packageCode?: string;
@@ -33,18 +31,32 @@ type EsimAccessResponse = {
   success?: boolean;
   errorCode?: string | null;
   errorMsg?: string | null;
+  errorMessage?: string | null;
   obj?: {
     packageList?: PackageItem[];
   };
 };
 
+const PACKAGE_CACHE_SECONDS = 10 * 60;
+
+const getCachedPackages = unstable_cache(
+  async (locationCode: string) =>
+    (await esimPost("/api/v1/open/package/list", {
+      locationCode,
+      type: "BASE",
+    })) as EsimAccessResponse,
+  ["esimaccess-base-packages-v1"],
+  {
+    revalidate: PACKAGE_CACHE_SECONDS,
+    tags: ["esimaccess-packages"],
+  },
+);
+
 function getLocationCode(request: NextRequest): string | null {
   const { searchParams } = new URL(request.url);
 
   const value =
-    searchParams.get("locationCode") ||
-    searchParams.get("location") ||
-    "";
+    searchParams.get("locationCode") || searchParams.get("location") || "";
 
   const normalized = value.trim().toUpperCase();
 
@@ -71,7 +83,7 @@ function bytesToGB(volume?: number): number | null {
 
 function normalizeDuration(
   duration?: number,
-  durationUnit?: string
+  durationUnit?: string,
 ): string | null {
   if (!duration) {
     return null;
@@ -91,21 +103,17 @@ function normalizeDuration(
   return `${duration} ${labels[unit] || unit}`;
 }
 
-function getNetwork(
-  pkg: PackageItem
-): string {
+function getNetwork(pkg: PackageItem): string {
   if (pkg.speed) {
     return pkg.speed;
   }
 
-  const networks =
-    pkg.locationNetworkList
-      ?.flatMap((location) =>
-        location.operatorList?.map(
-          (operator) => operator.networkType
-        ) || []
-      )
-      .filter(Boolean);
+  const networks = pkg.locationNetworkList
+    ?.flatMap(
+      (location) =>
+        location.operatorList?.map((operator) => operator.networkType) || [],
+    )
+    .filter(Boolean);
 
   if (!networks || networks.length === 0) {
     return "4G / 5G";
@@ -114,9 +122,7 @@ function getNetwork(
   return [...new Set(networks)].join(" / ");
 }
 
-function getCoverage(
-  pkg: PackageItem
-): string {
+function getCoverage(pkg: PackageItem): string {
   if (pkg.locationCode) {
     return pkg.locationCode;
   }
@@ -145,10 +151,9 @@ export async function POST(request: NextRequest) {
         ? body.locationCode.trim().toUpperCase()
         : "";
 
-    const locationCode =
-      bodyLocationCode || queryLocationCode;
+    const locationCode = bodyLocationCode || queryLocationCode;
 
-    if (!locationCode) {
+    if (!locationCode || !/^[A-Z]{2}$/.test(locationCode)) {
       return NextResponse.json(
         {
           success: false,
@@ -156,38 +161,18 @@ export async function POST(request: NextRequest) {
           errorMsg:
             "locationCode is required. Example: PK, NL, AE, SA, TR or IN.",
         },
-        { status: 400 }
-      );
-    }
-
-    if (!locationCode) {
-      return NextResponse.json(
-        {
-          success: false,
-          errorCode: "INVALID_LOCATION",
-          errorMsg:
-            "locationCode is required. Example: PK, NL, AE, SA, TR or IN.",
-        },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     /*
      * eSIMAccess package/list request.
      *
-     * We deliberately send an empty body and perform
-     * country filtering on our server.
-     *
-     * This is compatible with the working API request
-     * you already tested:
-     *
-     * POST /api/v1/open/package/list
-     * {}
+     * Ask eSIMAccess for current base packages available
+     * for the selected country. A defensive local filter
+     * remains below so unrelated plans are never displayed.
      */
-    const apiResponse = (await esimPost(
-      "/api/v1/open/package/list",
-      {}
-    )) as EsimAccessResponse;
+    const apiResponse = await getCachedPackages(locationCode);
 
     if (!apiResponse?.success) {
       return NextResponse.json(
@@ -196,9 +181,10 @@ export async function POST(request: NextRequest) {
           errorCode: apiResponse?.errorCode ?? "ESIM_API_ERROR",
           errorMsg:
             apiResponse?.errorMsg ||
+            apiResponse?.errorMessage ||
             "Unable to retrieve eSIM packages.",
         },
-        { status: 502 }
+        { status: 502 },
       );
     }
 
@@ -220,22 +206,17 @@ export async function POST(request: NextRequest) {
     const filteredPackages = packageList.filter((pkg) => {
       const target = locationCode;
 
-      const directLocationCodes = [
-        pkg.locationCode,
-        pkg.location,
-      ]
+      const directLocationCodes = [pkg.locationCode, pkg.location]
         .filter(Boolean)
         .flatMap((value) =>
           String(value)
             .split(",")
-            .map((item) => item.trim().toUpperCase())
+            .map((item) => item.trim().toUpperCase()),
         );
 
       const networkLocationCodes =
         pkg.locationNetworkList
-          ?.map((location) =>
-            location.locationCode?.trim().toUpperCase()
-          )
+          ?.map((location) => location.locationCode?.trim().toUpperCase())
           .filter(Boolean) || [];
 
       return (
@@ -253,14 +234,12 @@ export async function POST(request: NextRequest) {
     const packages = filteredPackages
       .filter(
         (pkg) =>
-          typeof pkg.price === "number" &&
-          pkg.price > 0 &&
-          pkg.packageCode
+          typeof pkg.price === "number" && pkg.price > 0 && pkg.packageCode,
       )
       .map((pkg) => {
         const pricing = getCustomerPrice(
           pkg.price as number,
-          pkg.currencyCode || "USD"
+          pkg.currencyCode || "USD",
         );
 
         const gb = bytesToGB(pkg.volume);
@@ -269,27 +248,17 @@ export async function POST(request: NextRequest) {
           packageCode: pkg.packageCode,
           slug: pkg.slug || null,
 
-          name:
-            pkg.name ||
-            pkg.description ||
-            "eSIM Data Package",
+          name: pkg.name || pkg.description || "eSIM Data Package",
 
-          data:
-            gb !== null
-              ? `${Number(gb.toFixed(2))} GB`
-              : null,
+          data: gb !== null ? `${Number(gb.toFixed(2))} GB` : null,
 
           volume: pkg.volume || null,
 
           duration: pkg.duration || null,
 
-          durationUnit:
-            pkg.durationUnit || "DAY",
+          durationUnit: pkg.durationUnit || "DAY",
 
-          validity: normalizeDuration(
-            pkg.duration,
-            pkg.durationUnit
-          ),
+          validity: normalizeDuration(pkg.duration, pkg.durationUnit),
 
           network: getNetwork(pkg),
 
@@ -305,9 +274,7 @@ export async function POST(request: NextRequest) {
            */
           price: pricing.customerPriceEUR,
 
-          displayPrice: formatCustomerPrice(
-            pricing.customerPriceEUR
-          ),
+          displayPrice: formatCustomerPrice(pricing.customerPriceEUR),
 
           currency: "EUR",
 
@@ -322,26 +289,26 @@ export async function POST(request: NextRequest) {
     /*
      * Sort cheapest first.
      */
-    packages.sort(
-      (a, b) => a.price - b.price
+    packages.sort((a, b) => a.price - b.price);
+
+    return NextResponse.json(
+      {
+        success: true,
+        errorCode: null,
+        errorMsg: null,
+        countryCode: locationCode,
+        packageCount: packages.length,
+        packages,
+      },
+      {
+        headers: {
+          "Cache-Control": "private, no-store",
+          "X-eSIM-Cache": `server-revalidate-${PACKAGE_CACHE_SECONDS}`,
+        },
+      },
     );
-
-    return NextResponse.json({
-      success: true,
-      errorCode: null,
-      errorMsg: null,
-
-      countryCode: locationCode,
-
-      packageCount: packages.length,
-
-      packages,
-    });
   } catch (error) {
-    console.error(
-      "eSIM packages API error:",
-      error
-    );
+    console.error("eSIM packages API error:", error);
 
     return NextResponse.json(
       {
@@ -352,7 +319,7 @@ export async function POST(request: NextRequest) {
             ? error.message
             : "Unable to retrieve eSIM packages.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
