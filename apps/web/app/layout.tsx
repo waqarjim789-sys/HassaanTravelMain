@@ -7,6 +7,7 @@ import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import FloatingWhatsApp from "../components/FloatingWhatsApp";
 import CookieBanner from "../components/CookieBanner";
+import PromoPopup from "../components/promotions/PromoPopup";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -35,19 +36,21 @@ export default function RootLayout({
         <title>Hassaan Travel</title>
         <meta name="description" content="Hassaan Travel" />
       </head>
-    <body className={`${geistSans.variable} ${geistMono.variable}`}>
-  <LanguageProvider>
-    <Navbar />
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <LanguageProvider>
+          <PromoPopup />
 
-    {children}
+          <Navbar />
 
-    <FloatingWhatsApp />
+          {children}
 
-    <CookieBanner />
+          <FloatingWhatsApp />
 
-    <Footer />
-  </LanguageProvider>
-</body>
+          <CookieBanner />
+
+          <Footer />
+        </LanguageProvider>
+      </body>
     </html>
   );
 }
