@@ -2,17 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-
-const PROMO_SESSION_KEY = "hassaan-travel-promo-2026-08";
+import { useCallback, useEffect, useState } from "react";
 
 export default function PromoPopup() {
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    if (sessionStorage.getItem(PROMO_SESSION_KEY)) return;
+  const closePopup = useCallback(() => {
+    setIsOpen(false);
+  }, []);
 
-    const timer = window.setTimeout(() => setIsOpen(true), 600);
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setIsOpen(true);
+    }, 600);
+
     return () => window.clearTimeout(timer);
   }, []);
 
@@ -23,7 +26,9 @@ export default function PromoPopup() {
     document.body.style.overflow = "hidden";
 
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closePopup();
+      if (event.key === "Escape") {
+        closePopup();
+      }
     };
 
     window.addEventListener("keydown", closeOnEscape);
@@ -32,12 +37,7 @@ export default function PromoPopup() {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", closeOnEscape);
     };
-  }, [isOpen]);
-
-  function closePopup() {
-    sessionStorage.setItem(PROMO_SESSION_KEY, "seen");
-    setIsOpen(false);
-  }
+  }, [closePopup, isOpen]);
 
   if (!isOpen) return null;
 
@@ -46,7 +46,9 @@ export default function PromoPopup() {
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm sm:p-6"
       role="presentation"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) closePopup();
+        if (event.target === event.currentTarget) {
+          closePopup();
+        }
       }}
     >
       <section
