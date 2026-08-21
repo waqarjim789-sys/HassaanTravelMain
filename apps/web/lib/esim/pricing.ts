@@ -26,17 +26,17 @@ export interface CustomerPriceResult {
  * Convert supplier price to EUR.
  *
  * eSIMAccess returns monetary values in minor units.
- * Example:
- * 7800 USD => $78.00
+ * eSIMAccess uses four decimal places for package prices.
+ * Example: 10000 USD units => $1.00.
  */
 export function convertMinorUnitToEUR(
   amount: number,
   currency: string,
-  usdToEur: number = DEFAULT_USD_TO_EUR
+  usdToEur: number = DEFAULT_USD_TO_EUR,
 ): number {
   const normalizedCurrency = currency.toUpperCase();
 
-  const majorAmount = amount / 100;
+  const majorAmount = amount / 10_000;
 
   if (normalizedCurrency === "EUR") {
     return majorAmount;
@@ -46,9 +46,7 @@ export function convertMinorUnitToEUR(
     return majorAmount * usdToEur;
   }
 
-  throw new Error(
-    `Unsupported supplier currency: ${normalizedCurrency}`
-  );
+  throw new Error(`Unsupported supplier currency: ${normalizedCurrency}`);
 }
 
 /**
@@ -63,10 +61,9 @@ export function convertMinorUnitToEUR(
  */
 export function calculateCustomerPrice(
   convertedCostEUR: number,
-  markupPercent: number = MARKUP_PERCENT
+  markupPercent: number = MARKUP_PERCENT,
 ): number {
-  const withMarkup =
-    convertedCostEUR * (1 + markupPercent / 100);
+  const withMarkup = convertedCostEUR * (1 + markupPercent / 100);
 
   return Math.ceil(withMarkup);
 }
@@ -76,19 +73,17 @@ export function calculateCustomerPrice(
  */
 export function getCustomerPrice(
   supplierAmount: number,
-  supplierCurrency: string
+  supplierCurrency: string,
 ): CustomerPriceResult {
   const convertedCostEUR = convertMinorUnitToEUR(
     supplierAmount,
-    supplierCurrency
+    supplierCurrency,
   );
 
-  const customerPriceEUR = calculateCustomerPrice(
-    convertedCostEUR
-  );
+  const customerPriceEUR = calculateCustomerPrice(convertedCostEUR);
 
   return {
-    supplierPrice: supplierAmount / 100,
+    supplierPrice: supplierAmount / 10_000,
     supplierCurrency,
     convertedCostEUR,
     customerPriceEUR,
@@ -101,8 +96,6 @@ export function getCustomerPrice(
  * Always EUR.
  * Always a clean whole number.
  */
-export function formatCustomerPrice(
-  priceEUR: number
-): string {
+export function formatCustomerPrice(priceEUR: number): string {
   return `€ ${Math.round(priceEUR)}`;
 }

@@ -5,42 +5,36 @@ import { useEffect, useState } from "react";
 import { countries as initialCountries } from "./data";
 import CountryGrid from "./CountryGrid";
 import PackageModal from "./PackageModal";
-import { Country, EsimPackage } from "./types";
-import { calculateCustomerPrice } from "@/lib/esim/pricing";
+import type { Country, EsimPackage } from "./types";
 
 type ApiPackage = {
   packageCode?: string;
-  slug?: string;
+  slug?: string | null;
   name?: string;
-  description?: string;
-  price?: number;
-  currencyCode?: string;
-  volume?: number;
-  duration?: number;
+  data?: string | null;
+  volume?: number | null;
+  duration?: number | null;
   durationUnit?: string;
-  speed?: string;
-  location?: string;
-  locationCode?: string;
-  locationNetworkList?: Array<{
-    locationName?: string;
-    locationCode?: string;
-    operatorList?: Array<{
-      operatorName?: string;
-      networkType?: string;
-    }>;
-  }>;
+  validity?: string | null;
+  network?: string;
+  coverage?: string;
+  countryCode?: string;
+  price?: number;
+  displayPrice?: string;
+  currency?: "EUR" | string;
+  instantDelivery?: boolean;
 };
 
 type ApiResponse = {
   success?: boolean;
   errorCode?: string | null;
   errorMsg?: string | null;
-  obj?: {
-    packageList?: ApiPackage[];
-  };
+  countryCode?: string;
+  packageCount?: number;
+  packages?: ApiPackage[];
 };
 
-function formatData(volume?: number, name?: string): string {
+function formatData(volume?: number | null, name?: string): string {
   if (typeof volume === "number" && volume > 0) {
     const gb = volume / 1024 / 1024 / 1024;
 
@@ -48,182 +42,110 @@ function formatData(volume?: number, name?: string): string {
       return `${Number(gb.toFixed(2))}GB`;
     }
 
-    const mb = volume / 1024 / 1024;
-    return `${Math.round(mb)}MB`;
+    return `${Math.round(volume / 1024 / 1024)}MB`;
   }
 
   const match = name?.match(/(\d+(?:\.\d+)?)\s*(GB|MB)/i);
-
   const amount = match?.[1];
   const unit = match?.[2];
 
-  if (!amount || !unit) {
-    return "Data";
-  }
-
-  return `${amount}${unit.toUpperCase()}`;
-}
-
-function getOperator(packageItem: ApiPackage): string | undefined {
-  const operators =
-    packageItem.locationNetworkList?.flatMap(
-      (location) =>
-        location.operatorList?.map((operator) => operator.operatorName) ?? [],
-    ) ?? [];
-
-  const uniqueOperators = [...new Set(operators.filter(Boolean))];
-
-  return uniqueOperators.length ? uniqueOperators.join(", ") : undefined;
+  return amount && unit ? `${amount}${unit.toUpperCase()}` : "Data";
 }
 
 function mapPackage(
   packageItem: ApiPackage,
   index: number,
 ): EsimPackage | null {
-  if (typeof packageItem.price !== "number" || packageItem.price <= 0) {
+  if (
+    !packageItem.packageCode ||
+    typeof packageItem.price !== "number" ||
+    packageItem.price <= 0 ||
+    packageItem.currency !== "EUR"
+  ) {
     return null;
   }
 
-  /*
-   * eSIMAccess price is supplied in the smallest currency unit.
-   *
-   * Example:
-   * 7800 = $7.80
-   */
-  const supplierUsd = packageItem.price / 100;
-
-  const customerPriceEUR = calculateCustomerPrice(supplierUsd);
-
-  const networkTypes =
-    packageItem.locationNetworkList?.flatMap(
-      (location) =>
-        location.operatorList?.map((operator) => operator.networkType) ?? [],
-    ) ?? [];
-
-  const uniqueNetworks = [...new Set(networkTypes.filter(Boolean))];
-
   return {
     id: index + 1,
-
     packageCode: packageItem.packageCode,
-
-    title: packageItem.name || packageItem.description || "eSIM Package",
-
-    price: customerPriceEUR,
-
-    supplierPriceUSD: supplierUsd,
-
+    title: packageItem.name || "eSIM Package",
+    price: packageItem.price,
     days: packageItem.duration ?? 0,
-
     data: formatData(packageItem.volume, packageItem.name),
-
-    network:
-      uniqueNetworks.length > 0
-        ? uniqueNetworks.join(" / ")
-        : packageItem.speed || "4G / 5G",
-
+    network: packageItem.network || "4G / 5G",
     coverage:
-      packageItem.location || packageItem.locationCode || "International",
-
-    speed: packageItem.speed,
-
-    operator: getOperator(packageItem),
-
-    activation: "Instant",
-
-    locationCode: packageItem.locationCode,
-
-    slug: packageItem.slug,
+      packageItem.coverage || packageItem.countryCode || "International",
+    activation: packageItem.instantDelivery === false ? undefined : "Instant",
+    locationCode: packageItem.countryCode,
+    slug: packageItem.slug ?? undefined,
   };
 }
 
 export default function EsimHome() {
   const [countries, setCountries] = useState<Country[]>(initialCountries);
-
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState<string | null>(null);
-
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadPackages() {
-      try {
-        setLoading(true);
-        setError(null);
+      setLoading(true);
+      setError(null);
 
-        const loadedCountries = await Promise.all(
-          initialCountries.map(async (country) => {
-            try {
-              const response = await fetch("/api/esim/packages", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  locationCode: country.code,
-                }),
-                cache: "no-store",
-              });
+      let successfulRequests = 0;
 
-              if (!response.ok) {
-                throw new Error(`API request failed: ${response.status}`);
-              }
+      const loadedCountries = await Promise.all(
+        initialCountries.map(async (country) => {
+          try {
+            const response = await fetch("/api/esim/packages", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ locationCode: country.code }),
+              cache: "no-store",
+            });
 
-              const result: ApiResponse = await response.json();
+            const result = (await response.json()) as ApiResponse;
 
-              if (!result.success) {
-                throw new Error(
-                  result.errorMsg || "Unable to load eSIM packages.",
-                );
-              }
-
-              const packageList = result.obj?.packageList ?? [];
-
-              const mappedPackages = packageList
-                .map(mapPackage)
-                .filter((item): item is EsimPackage => item !== null);
-
-              const sortedPackages = mappedPackages.sort(
-                (a, b) => a.price - b.price,
+            if (!response.ok || !result.success) {
+              throw new Error(
+                result.errorMsg || `API request failed: ${response.status}`,
               );
-
-              return {
-                ...country,
-
-                packages: sortedPackages,
-
-                packageCount: sortedPackages.length,
-
-                startingPrice: sortedPackages[0]?.price ?? 0,
-              };
-            } catch (countryError) {
-              console.error(`Failed loading ${country.code}:`, countryError);
-
-              return country;
             }
-          }),
-        );
 
-        if (!cancelled) {
-          setCountries(loadedCountries);
-        }
-      } catch (loadError) {
-        console.error("eSIM package loading error:", loadError);
+            successfulRequests += 1;
 
-        if (!cancelled) {
-          setError("Unable to load live eSIM packages.");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+            const packages = (result.packages ?? [])
+              .map(mapPackage)
+              .filter((item): item is EsimPackage => item !== null)
+              .sort((a, b) => a.price - b.price);
+
+            return {
+              ...country,
+              packages,
+              packageCount: packages.length,
+              startingPrice: packages[0]?.price ?? 0,
+            };
+          } catch (countryError) {
+            console.error(`Failed loading ${country.code}:`, countryError);
+            return country;
+          }
+        }),
+      );
+
+      if (cancelled) return;
+
+      setCountries(loadedCountries);
+
+      if (successfulRequests === 0) {
+        setError("Unable to load live eSIM packages. Please try again later.");
       }
+
+      setLoading(false);
     }
 
-    loadPackages();
+    void loadPackages();
 
     return () => {
       cancelled = true;
@@ -234,21 +156,20 @@ export default function EsimHome() {
     <>
       <section className="py-10">
         <div className="mb-10">
-          <h2 className="text-3xl lg:text-4xl font-bold">
+          <h2 className="text-3xl font-bold lg:text-4xl">
             <span className="text-[#0F91D5]">HT Connect</span> Global eSIM
           </h2>
 
-          <p className="mt-4 text-gray-600 max-w-4xl leading-7">
+          <p className="mt-4 max-w-4xl leading-7 text-gray-600">
             Stay connected anywhere in the world with instant eSIM activation.
-            Browse country packages, purchase securely using ING Checkout or
-            Mollie, and receive your QR Code instantly after payment.
+            Browse live country packages and compare data, validity, coverage,
+            and network options.
           </p>
         </div>
 
         {loading && (
           <div className="py-12 text-center">
             <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-[#0F91D5]" />
-
             <p className="mt-4 text-gray-500">Loading live eSIM packages...</p>
           </div>
         )}
