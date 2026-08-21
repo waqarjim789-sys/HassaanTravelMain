@@ -51,9 +51,17 @@ function formatData(volume?: number, name?: string): string {
     return `${Math.round(mb)}MB`;
   }
 
-  const match = name?.match(/(\d+(?:\.\d+)?)\s*(GB|MB)/i);
+const match = name?.match(/(\d+(?:\.\d+)?)\s*(GB|MB)/i);
 
-  return match ? `${match[1]}${match[2].toUpperCase()}` : "Data";
+const amount = match?.[1];
+const unit = match?.[2];
+
+if (!amount || !unit) {
+  return "Data";
+}
+
+return `${amount}${unit.toUpperCase()}`;
+
 }
 
 function getOperator(packageItem: ApiPackage): string | undefined {
