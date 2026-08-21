@@ -4,12 +4,10 @@ import { useState } from "react";
 import { PackageModalProps, EsimPackage } from "./types";
 import PaymentDialog from "./PaymentDialog";
 
-export default function PackageModal({
-  country,
-  onClose,
-}: PackageModalProps) {
-  const [selectedPackage, setSelectedPackage] =
-    useState<EsimPackage | null>(null);
+export default function PackageModal({ country, onClose }: PackageModalProps) {
+  const [selectedPackage, setSelectedPackage] = useState<EsimPackage | null>(
+    null,
+  );
 
   if (!country) return null;
 
@@ -25,19 +23,13 @@ export default function PackageModal({
         >
           {/* Header */}
           <div className="p-6 border-b">
-
             <div className="flex justify-between items-center">
-
               <div>
-
                 <h2 className="text-3xl font-bold">
                   {country.flag} {country.country}
                 </h2>
 
-                <p className="text-gray-500 mt-2">
-                  Choose your eSIM package
-                </p>
-
+                <p className="text-gray-500 mt-2">Choose your eSIM package</p>
               </div>
 
               <button
@@ -46,31 +38,22 @@ export default function PackageModal({
               >
                 ×
               </button>
-
             </div>
-
           </div>
 
           {/* Packages */}
 
           <div className="p-6 space-y-5">
-
             {country.packages.map((pkg) => (
-
               <div
                 key={pkg.id}
                 className="rounded-2xl border border-gray-200 p-6 hover:border-[#0F91D5] hover:shadow-lg transition"
               >
                 <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-5">
-
                   <div>
-
-                    <h3 className="text-xl font-bold">
-                      {pkg.title}
-                    </h3>
+                    <h3 className="text-xl font-bold">{pkg.title}</h3>
 
                     <div className="mt-3 grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-600">
-
                       <div>
                         <strong>Data:</strong> {pkg.data}
                       </div>
@@ -94,13 +77,10 @@ export default function PackageModal({
                       <div>
                         <strong>Activation:</strong> {pkg.activation}
                       </div>
-
                     </div>
-
                   </div>
 
                   <div className="text-center">
-
                     <p className="text-3xl font-bold text-[#0F91D5]">
                       €{pkg.price.toFixed(2)}
                     </p>
@@ -111,17 +91,11 @@ export default function PackageModal({
                     >
                       Buy Now
                     </button>
-
                   </div>
-
                 </div>
-
               </div>
-
             ))}
-
           </div>
-
         </div>
       </div>
 

@@ -11,15 +11,11 @@ export default function PaymentDialog({
   if (!open || !packageItem || !country) return null;
 
   const handleING = () => {
-    alert(
-      "ING Checkout integration will be connected in the next phase."
-    );
+    alert("ING Checkout integration will be connected in the next phase.");
   };
 
   const handleMollie = () => {
-    alert(
-      "Mollie integration will be connected in the next phase."
-    );
+    alert("Mollie integration will be connected in the next phase.");
   };
 
   return (
@@ -33,24 +29,16 @@ export default function PaymentDialog({
       >
         {/* Header */}
         <div className="bg-[#0F91D5] text-white p-6">
-          <h2 className="text-2xl font-bold">
-            Secure Checkout
-          </h2>
+          <h2 className="text-2xl font-bold">Secure Checkout</h2>
 
-          <p className="text-blue-100 mt-2">
-            HT Connect Global eSIM
-          </p>
+          <p className="text-blue-100 mt-2">HT Connect Global eSIM</p>
         </div>
 
         {/* Body */}
         <div className="p-6">
-
           <div className="space-y-4">
-
             <div className="flex justify-between">
-              <span className="text-gray-500">
-                Country
-              </span>
+              <span className="text-gray-500">Country</span>
 
               <span className="font-semibold">
                 {country.flag} {country.country}
@@ -58,57 +46,37 @@ export default function PaymentDialog({
             </div>
 
             <div className="flex justify-between">
-              <span className="text-gray-500">
-                Package
-              </span>
+              <span className="text-gray-500">Package</span>
 
-              <span className="font-semibold">
-                {packageItem.title}
-              </span>
+              <span className="font-semibold">{packageItem.title}</span>
             </div>
 
             <div className="flex justify-between">
-              <span className="text-gray-500">
-                Data
-              </span>
+              <span className="text-gray-500">Data</span>
 
-              <span className="font-semibold">
-                {packageItem.data}
-              </span>
+              <span className="font-semibold">{packageItem.data}</span>
             </div>
 
             <div className="flex justify-between">
-              <span className="text-gray-500">
-                Validity
-              </span>
+              <span className="text-gray-500">Validity</span>
 
-              <span className="font-semibold">
-                {packageItem.days} Days
-              </span>
+              <span className="font-semibold">{packageItem.days} Days</span>
             </div>
-
           </div>
 
           <div className="border-t mt-6 pt-6">
-
             <div className="flex justify-between items-center">
-
-              <span className="text-xl font-bold">
-                Total
-              </span>
+              <span className="text-xl font-bold">Total</span>
 
               <span className="text-3xl font-bold text-[#0F91D5]">
                 €{packageItem.price.toFixed(2)}
               </span>
-
             </div>
-
           </div>
 
           {/* Payment Buttons */}
 
           <div className="mt-8 space-y-4">
-
             <button
               onClick={handleING}
               className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-xl transition"
@@ -122,7 +90,6 @@ export default function PaymentDialog({
             >
               Pay with Mollie
             </button>
-
           </div>
 
           <button
@@ -131,7 +98,6 @@ export default function PaymentDialog({
           >
             Cancel
           </button>
-
         </div>
       </div>
     </div>

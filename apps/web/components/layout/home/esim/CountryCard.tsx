@@ -3,14 +3,9 @@
 import Image from "next/image";
 import { CountryCardProps } from "./types";
 
-export default function CountryCard({
-  country,
-  onSelect,
-}: CountryCardProps) {
+export default function CountryCard({ country, onSelect }: CountryCardProps) {
   return (
-    <article
-      className="group bg-white rounded-3xl overflow-hidden border border-gray-200 shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer"
-    >
+    <article className="group bg-white rounded-3xl overflow-hidden border border-gray-200 shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer">
       {/* Country Image */}
       <div className="relative h-52 overflow-hidden">
         <Image
@@ -33,45 +28,28 @@ export default function CountryCard({
 
       {/* Card Body */}
       <div className="p-6">
-
-        <h3 className="text-xl font-bold text-gray-900">
-          {country.country}
-        </h3>
+        <h3 className="text-xl font-bold text-gray-900">{country.country}</h3>
 
         <div className="mt-5 space-y-3">
-
           <div className="flex justify-between">
-            <span className="text-gray-500">
-              Packages
-            </span>
+            <span className="text-gray-500">Packages</span>
 
-            <span className="font-semibold">
-              {country.packageCount}
-            </span>
+            <span className="font-semibold">{country.packageCount}</span>
           </div>
 
           <div className="flex justify-between">
-            <span className="text-gray-500">
-              Network
-            </span>
+            <span className="text-gray-500">Network</span>
 
-            <span className="font-semibold text-green-600">
-              4G / 5G
-            </span>
+            <span className="font-semibold text-green-600">4G / 5G</span>
           </div>
 
           <div className="flex justify-between">
+            <span className="text-gray-500">Starting From</span>
 
-            <span className="text-gray-500">
-              Starting From
+            <span className="font-bold text-[#0F91D5] text-lg">
+              €{country.startingPrice}
             </span>
-
-           <span className="font-bold text-[#0F91D5] text-lg">
- 		 €{country.startingPrice}
-	</span>
-
           </div>
-
         </div>
 
         <button
@@ -80,7 +58,6 @@ export default function CountryCard({
         >
           View Packages
         </button>
-
       </div>
     </article>
   );
