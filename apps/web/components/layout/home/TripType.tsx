@@ -1,10 +1,25 @@
 "use client";
 import { useState } from "react";
 import { ArrowRight, RotateCcw } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
+import {
+  homepageTranslations,
+  type LanguageCode,
+} from "@/translations/homepage";
 
 export default function TripTypeDropdown({value, onChange}: {value: string, onChange: (value: "oneWay" | "return") => void}) {
+  const { language } = useLanguage();
+
+  const t =
+    homepageTranslations[language as LanguageCode] || homepageTranslations.en;
+
+  const tt = t.tripType;
+
   const [tripType, setTripType] = useState(value || "return");
   const [open, setOpen] = useState(false);
+
+  const tripTypeLabel =
+    tripType === "oneWay" ? tt.oneWayLabel : tt.returnLabel;
 
   const handleSelect = (type: "oneWay" | "return") => {
     setTripType(type);
@@ -23,9 +38,11 @@ export default function TripTypeDropdown({value, onChange}: {value: string, onCh
       <button
       type="button"
         onClick={() => setOpen(!open)}
+        aria-label={tt.toggleAria}
+        aria-expanded={open}
         className="cursor-pointer flex items-center gap-1.5 border border-gray-300 rounded-lg px-3.5 py-1.5 bg-white text-sm font-medium text-gray-900"
       >
-        {tripType}
+        {tripTypeLabel}
         <span className="text-xs">▾</span>
       </button>
 
@@ -36,14 +53,14 @@ export default function TripTypeDropdown({value, onChange}: {value: string, onCh
             onClick={() => handleSelect("return")}
             className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 text-black flex items-center gap-4 font-bold"
           >
-            <RotateCcw className="size-6" /> Return
+            <RotateCcw className="size-6" /> {tt.returnLabel}
           </button>
 
           <button
             onClick={() => handleSelect("oneWay")}
             className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 text-black flex items-center font-bold gap-4"
           >
-            <ArrowRight className="size-6" /> One way booking
+            <ArrowRight className="size-6" /> {tt.oneWayLabel}
           </button>
         </div>
       )}

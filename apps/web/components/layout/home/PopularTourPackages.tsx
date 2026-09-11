@@ -3,246 +3,194 @@
 import Image from "next/image";
 import { useState } from "react";
 import EsimHome from "./esim/EsimHome"; // NEW IMPORT
+import { useLanguage } from "@/components/LanguageProvider";
+import {
+  homepageTranslations,
+  type CountryKey,
+  type HomepageTranslation,
+  type LanguageCode,
+  type PackageKey,
+} from "@/translations/homepage";
+
+// =======================================================
+// TYPES
+// =======================================================
+
+type PriceLabel = "from" | "exact" | "onRequest" | "custom" | "stayTuned";
+
+type PackageType = {
+  img: string;
+  key: PackageKey;
+  /** Raw currency value, e.g. "€ 685". Omitted for label-only prices. */
+  price?: string;
+  priceLabel: PriceLabel;
+  countryKey?: CountryKey;
+};
 
 // =======================================================
 // POPULAR PACKAGES
 // =======================================================
 
-const popularPackages = [
-  {
-    img: "c7.webp",
-    name: "Pakistan",
-    country: "",
-    price: "From € 685",
-    description:
-      "Discover Pakistan's breathtaking landscapes, rich cultural heritage, vibrant cities, and unforgettable travel experiences.",
-  },
-  {
-    img: "cp2.webp",
-    name: "Pakistan Visa",
-    country: "",
-    price: "From € 70",
-    description:
-      "Fast and reliable Pakistan visa processing services with expert guidance and hassle-free documentation support.",
-  },
-  {
-    img: "c3.webp",
-    name: "Saudi Visa",
-    country: "",
-    price: "From € 120",
-    description:
-      "Get your Saudi visa with a smooth application process, professional assistance, and timely approvals.",
-  },
-  {
-    img: "c4.webp",
-    name: "Umrah Package",
-    country: "",
-    price: "On Request",
-    description:
-      "Complete Umrah packages including visa, accommodation, transportation, and dedicated support throughout your journey.",
-  },
-  {
-    img: "c5.webp",
-    name: "India",
-    country: "",
-    price: "From € 545",
-    description:
-      "Explore India's diverse culture, historic landmarks, spiritual destinations, and world-famous attractions.",
-  },
-  {
-    img: "c6.webp",
-    name: "E-Sim",
-    country: "",
-    price: "From € 5",
-    description:
-      "Stay connected worldwide with affordable eSIM plans offering instant activation and seamless mobile data.",
-  },
+const popularPackages: PackageType[] = [
+  { img: "c7.webp", key: "pakistan", price: "€ 685", priceLabel: "from" },
+  { img: "cp2.webp", key: "pakistanVisa", price: "€ 70", priceLabel: "from" },
+  { img: "c3.webp", key: "saudiVisa", price: "€ 120", priceLabel: "from" },
+  { img: "c4.webp", key: "umrahPackage", priceLabel: "onRequest" },
+  { img: "c5.webp", key: "india", price: "€ 545", priceLabel: "from" },
+  { img: "c6.webp", key: "esimCard", price: "€ 5", priceLabel: "from" },
 ];
 
 // =======================================================
 // DESTINATION PACKAGES
 // =======================================================
 
-const DestinationPackages = [
-  {
-    img: "d1.webp",
-    name: "Pakistan",
-    price: "€ 750",
-    description:
-      "Explore the breathtaking beauty of Hunza Valley, Skardu, and the majestic peaks of the Karakoram range.",
-  },
+const DestinationPackages: PackageType[] = [
+  { img: "d1.webp", key: "destPakistan", price: "€ 750", priceLabel: "exact" },
   {
     img: "d2.webp",
-    name: "Afghanistan",
+    key: "destAfghanistan",
     price: "€ 950",
-    description:
-      "Discover the historical richness of the Bamiyan Valley and the vibrant culture of Kabul.",
+    priceLabel: "exact",
   },
   {
     img: "d3.webp",
-    name: "Saudi Arabia",
+    key: "destSaudiArabia",
     price: "€ 1,200",
-    description:
-      "Experience a spiritual journey with guided tours to the holy cities and historical landmarks.",
+    priceLabel: "exact",
   },
-  {
-    img: "d4.webp",
-    name: "India",
-    price: "€ 890",
-    description:
-      "Visit the iconic Taj Mahal and explore the majestic palaces and forts of the Pink City.",
-  },
-  {
-    img: "d5.webp",
-    name: "Kurdistan",
-    price: "€ 990",
-    description:
-      "Discover ancient citadels, beautiful mountain landscapes, and the warm hospitality of the Kurdish region.",
-  },
-  {
-    img: "d6.webp",
-    name: "Turkiye",
-    price: "€ 1,150",
-    description:
-      "A perfect blend of history, culture, and unique landscapes. Hot air balloons and stunning architecture await.",
-  },
+  { img: "d4.webp", key: "destIndia", price: "€ 890", priceLabel: "exact" },
+  { img: "d5.webp", key: "destKurdistan", price: "€ 990", priceLabel: "exact" },
+  { img: "d6.webp", key: "destTurkiye", price: "€ 1,150", priceLabel: "exact" },
 ];
 
 // =======================================================
 // UMRAH PACKAGES
 // =======================================================
 
-const UmrahPackages = [
-  {
-    img: "u.webp",
-    name: "Coming Soon",
-    price: "Stay Tuned",
-    description:
-      "We are working on exciting new Umrah packages. Stay tuned for updates!",
-  },
+const UmrahPackages: PackageType[] = [
+  { img: "u.webp", key: "umrahComingSoon", priceLabel: "stayTuned" },
 ];
 
 // =======================================================
 // VISA PACKAGES
 // =======================================================
 
-const VisaPackages = [
-  {
-    img: "d1.webp",
-    name: "Pakistan Family Visa (3 months)",
-    price: "€ 70",
-    description:
-      "Family visa service for a 3-month stay. Quick and reliable processing.",
-  },
-  {
-    img: "d1.webp",
-    name: "Pakistan Tourist Visa",
-    price: "€ 80",
-    description:
-      "Tourist visa for Pakistan. Avail our special limited-time discount.",
-  },
+const VisaPackages: PackageType[] = [
+  { img: "d1.webp", key: "visaPakFamily3m", price: "€ 70", priceLabel: "exact" },
+  { img: "d1.webp", key: "visaPakTourist", price: "€ 80", priceLabel: "exact" },
   {
     img: "d3.webp",
-    name: "Saudi-Arabia Tourist Visa",
+    key: "visaSaudiTourist",
     price: "€ 120",
-    description:
-      "Hassle-free tourist visa processing for your trip to Saudi Arabia.",
+    priceLabel: "exact",
   },
   {
     img: "c7.webp",
-    name: "Pakistan Family Visa (1 year)",
+    key: "visaPakFamily1y",
     price: "€ 100",
-    description:
-      "Long-term family visa for a 1-year duration. Efficient service provided.",
+    priceLabel: "exact",
   },
-  {
-    img: "v6.webp",
-    name: "Kenia Visa",
-    price: "€ 60",
-    description:
-      "Streamlined visa application process for travel to Kenya.",
-  },
-  {
-    img: "c5.webp",
-    name: "Others On request",
-    price: "Custom",
-    description:
-      "Need a visa for another destination? Contact us for a personalized quote.",
-  },
+  { img: "v6.webp", key: "visaKenya", price: "€ 60", priceLabel: "exact" },
+  { img: "c5.webp", key: "visaOthers", priceLabel: "custom" },
 ];
 
 // =======================================================
 // TOUR PACKAGES
 // =======================================================
 
-const PackagesPackages = [
+const PackagesPackages: PackageType[] = [
   {
     img: "p1.webp",
-    name: "Tanzania",
-    country: "Japan",
+    key: "pkgTanzania",
+    countryKey: "japan",
     price: "€ 2,650",
-    description:
-      "Ancient temples, traditional tea ceremonies, and beautiful geisha districts.",
+    priceLabel: "exact",
   },
   {
     img: "p2.webp",
-    name: "Oman",
-    country: "Egypt",
+    key: "pkgOman",
+    countryKey: "egypt",
     price: "€ 1,850",
-    description:
-      "Pyramids of Giza, Egyptian Museum, and rich pharaonic history.",
+    priceLabel: "exact",
   },
   {
     img: "p3.webp",
-    name: "Malaysia",
-    country: "Austria",
+    key: "pkgMalaysia",
+    countryKey: "austria",
     price: "€ 1,250",
-    description:
-      "Imperial palaces, classical music, and world-class museums.",
+    priceLabel: "exact",
   },
   {
     img: "p4.webp",
-    name: "Indonesia",
-    country: "Czech Republic",
+    key: "pkgIndonesia",
+    countryKey: "czechRepublic",
     price: "€ 1,150",
-    description:
-      "Fairytale architecture, medieval charm, and rich Bohemian culture.",
+    priceLabel: "exact",
   },
   {
     img: "p5.webp",
-    name: "Thailand",
-    country: "India",
+    key: "pkgThailand",
+    countryKey: "india",
     price: "€ 1,750",
-    description:
-      "Historic monuments, bustling bazaars, and diverse spiritual heritage.",
+    priceLabel: "exact",
   },
   {
     img: "p6.webp",
-    name: "Japan",
-    country: "Morocco",
+    key: "pkgJapan",
+    countryKey: "morocco",
     price: "€ 1,450",
-    description:
-      "Vibrant souks, stunning palaces, and authentic Moroccan traditions.",
+    priceLabel: "exact",
   },
 ];
 
-type PackageType = {
-  img: string;
-  name: string;
-  price: string;
-  description: string;
-  country?: string;
+// =======================================================
+// TRANSLATION HELPERS
+// =======================================================
+
+const getName = (dict: HomepageTranslation, item: PackageType) =>
+  dict.packageItems[item.key]?.name ??
+  homepageTranslations.en.packageItems[item.key].name;
+
+const getDescription = (dict: HomepageTranslation, item: PackageType) =>
+  dict.packageItems[item.key]?.description ??
+  homepageTranslations.en.packageItems[item.key].description;
+
+const getCountry = (dict: HomepageTranslation, item: PackageType) =>
+  item.countryKey ? dict.countries[item.countryKey] : "";
+
+const getPrice = (dict: HomepageTranslation, item: PackageType) => {
+  if (item.price) {
+    return item.priceLabel === "from"
+      ? dict.fromPrice.replace("{price}", item.price)
+      : item.price;
+  }
+
+  if (item.priceLabel === "onRequest") return dict.onRequest;
+  if (item.priceLabel === "custom") return dict.custom;
+  if (item.priceLabel === "stayTuned") return dict.stayTuned;
+
+  return "";
 };
 
+// =======================================================
+// COMPONENT
+// =======================================================
+
 const PopularTourPackages = () => {
+  const { language } = useLanguage();
+
+  const t =
+    homepageTranslations[language as LanguageCode] || homepageTranslations.en;
+
   const [activeCategory, setActiveCategory] = useState<
     "popular" | "Destination" | "Umrah" | "Visa" | "Packages" | "Esim"
   >("popular");
 
-  const [selectedPackage, setSelectedPackage] =
-    useState<PackageType | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<PackageType | null>(
+    null
+  );
 
-  const getPackages = () => {
+  const getPackages = (): PackageType[] => {
     switch (activeCategory) {
       case "Destination":
         return DestinationPackages;
@@ -268,188 +216,197 @@ const PopularTourPackages = () => {
   const currentPackages = getPackages();
 
   // Function to generate dynamic WhatsApp URL
+  // (message stays in English so the office always receives a readable request)
   const getWhatsAppLink = (pkg: PackageType) => {
     const phoneNumber = "31104857673";
 
-    const baseMessage = `Hello Hassaan Travel, I would like to learn more about the "${pkg.name}" package`;
+    const en = homepageTranslations.en;
 
-    const countryContext = pkg.country
-      ? ` for ${pkg.country}`
+    const baseMessage = `Hello Hassaan Travel, I would like to learn more about the "${getName(
+      en,
+      pkg
+    )}" package`;
+
+    const countryContext = pkg.countryKey
+      ? ` for ${en.countries[pkg.countryKey]}`
       : "";
 
-    const fullMessage = `${baseMessage}${countryContext} (Price: ${pkg.price}). Please provide more details.`;
+    const fullMessage = `${baseMessage}${countryContext} (Price: ${getPrice(
+      en,
+      pkg
+    )}). Please provide more details.`;
 
     return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
       fullMessage
     )}`;
   };
+
   return (
-  <>
-    <section className="relative pb-8 sm:pb-12 pt-11 sm:pt-17 px-4 sm:px-8 md:px-16 overflow-hidden">
-      {/* BACKGROUND IMAGE */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15 z-0"
-        style={{ backgroundImage: "url('/assets/bgimage/h1.webp')" }}
-      />
+    <>
+      <section className="relative pb-8 sm:pb-12 pt-11 sm:pt-17 px-4 sm:px-8 md:px-16 overflow-hidden">
+        {/* BACKGROUND IMAGE */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15 z-0"
+          style={{ backgroundImage: "url('/assets/bgimage/h1.webp')" }}
+        />
 
-      {/* OVERLAY */}
-      <div className="absolute inset-0 bg-linear-to-b from-[rgba(207,234,246,0.3)] to-[rgba(85,178,218,0.4)] z-0" />
+        {/* OVERLAY */}
+        <div className="absolute inset-0 bg-linear-to-b from-[rgba(207,234,246,0.3)] to-[rgba(85,178,218,0.4)] z-0" />
 
-      <div className="relative z-10">
+        <div className="relative z-10">
 
-        <h2
-          id="popular-tour-packages"
-          className="text-2xl sm:text-3xl font-bold mb-3"
-        >
-          <span className="text-[#0F91D5]">Our Most</span>{" "}
-          <span className="text-black">Popular Services</span>
-        </h2>
-
-        <p className="text-gray-500 mb-6 w-full max-w-none lg:max-w-7xl whitespace-normal text-sm sm:text-base">
-          Everything you need for your next trip in one place from flights and visas to travel packages, tours, and eSIMs. Discover our most popular services today.
-        </p>
-
-        {/* CATEGORY TABS */}
-
-        <div className="flex flex-wrap gap-3 mb-8 border-b border-gray-200 pb-3">
-
-          <button
-            onClick={() => setActiveCategory("popular")}
-            className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
-              activeCategory === "popular"
-                ? "bg-[#0F91D5] text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
+          <h2
+            id="popular-tour-packages"
+            className="text-2xl sm:text-3xl font-bold mb-3"
           >
-            Popular
-          </button>
+            <span className="text-[#0F91D5]">{t.popularServicesTitle}</span>
+          </h2>
 
-          <button
-            onClick={() => setActiveCategory("Destination")}
-            className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
-              activeCategory === "Destination"
-                ? "bg-[#0F91D5] text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            Destination
-          </button>
+          <p className="text-gray-500 mb-6 w-full max-w-none lg:max-w-7xl whitespace-normal text-sm sm:text-base">
+            {t.popularServicesDescription}
+          </p>
 
-          <button
-            onClick={() => setActiveCategory("Umrah")}
-            className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
-              activeCategory === "Umrah"
-                ? "bg-[#0F91D5] text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            Umrah
-          </button>
+          {/* CATEGORY TABS */}
 
-          <button
-            onClick={() => setActiveCategory("Visa")}
-            className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
-              activeCategory === "Visa"
-                ? "bg-[#0F91D5] text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            Visa
-          </button>
+          <div className="flex flex-wrap gap-3 mb-8 border-b border-gray-200 pb-3">
 
-          <button
-            onClick={() => setActiveCategory("Packages")}
-            className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
-              activeCategory === "Packages"
-                ? "bg-[#0F91D5] text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            Packages
-          </button>
+            <button
+              onClick={() => setActiveCategory("popular")}
+              className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
+                activeCategory === "popular"
+                  ? "bg-[#0F91D5] text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {t.popular}
+            </button>
 
-          {/* NEW eSIM TAB */}
+            <button
+              onClick={() => setActiveCategory("Destination")}
+              className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
+                activeCategory === "Destination"
+                  ? "bg-[#0F91D5] text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {t.destination}
+            </button>
 
-          <button
-            onClick={() => setActiveCategory("Esim")}
-            className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
-              activeCategory === "Esim"
-                ? "bg-[#0F91D5] text-white shadow-md"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            HT Connect – Global eSIM
-          </button>
+            <button
+              onClick={() => setActiveCategory("Umrah")}
+              className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
+                activeCategory === "Umrah"
+                  ? "bg-[#0F91D5] text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {t.umrah}
+            </button>
 
-        </div>
+            <button
+              onClick={() => setActiveCategory("Visa")}
+              className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
+                activeCategory === "Visa"
+                  ? "bg-[#0F91D5] text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {t.visa}
+            </button>
 
-        {/* CONTENT */}
+            <button
+              onClick={() => setActiveCategory("Packages")}
+              className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
+                activeCategory === "Packages"
+                  ? "bg-[#0F91D5] text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {t.packages}
+            </button>
 
-        {activeCategory === "Esim" ? (
+            {/* NEW eSIM TAB */}
 
-          <EsimHome />
-
-        ) : (
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-
-            {currentPackages.map((item, i) => (
-
-              <article
-                key={i}
-                onClick={() => setSelectedPackage(item)}
-                className="group flex bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-500 hover:shadow-2xl cursor-pointer"
-              >
-
-                <div className="w-1/2 h-42.5 overflow-hidden">
-
-                  <Image
-                    src={
-                      item.img.startsWith("c")
-                        ? `/assets/tour/${item.img}`
-                        : `/assets/home/${item.img}`
-                    }
-                    alt={`${item.name} package`}
-                    width={400}
-                    height={170}
-                    priority={i < 2}
-                    className="w-full h-full object-cover transition-all duration-500 ease-out group-hover:-translate-x-10"
-                  />
-
-                </div>
-
-                <div className="w-1/2 bg-white px-5 py-4 flex flex-col justify-center transition-all duration-500 ease-out group-hover:-translate-x-6">
-
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {item.name}
-                  </h3>
-
-                  <div className="mt-4">
-
-                    <p className="text-sm text-gray-500">
-                      Price
-                    </p>
-
-                    <p className="text-[#0F91D5] text-xl font-bold">
-                      {item.price}
-                    </p>
-
-                  </div>
-
-                </div>
-
-              </article>
-
-            ))}
+            <button
+              onClick={() => setActiveCategory("Esim")}
+              className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
+                activeCategory === "Esim"
+                  ? "bg-[#0F91D5] text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {t.esim}
+            </button>
 
           </div>
 
-        )}
+          {/* CONTENT */}
 
-      </div>
-    </section>
+          {activeCategory === "Esim" ? (
 
-   {/* MODAL - opens when clicking on any card */}
+            <EsimHome />
+
+          ) : (
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+              {currentPackages.map((item, i) => (
+
+                <article
+                  key={`${item.key}-${i}`}
+                  onClick={() => setSelectedPackage(item)}
+                  className="group flex bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-500 hover:shadow-2xl cursor-pointer"
+                >
+
+                  <div className="w-1/2 h-42.5 overflow-hidden">
+
+                    <Image
+                      src={
+                        item.img.startsWith("c")
+                          ? `/assets/tour/${item.img}`
+                          : `/assets/home/${item.img}`
+                      }
+                      alt={`${getName(t, item)} ${t.packageAlt}`}
+                      width={400}
+                      height={170}
+                      priority={i < 2}
+                      className="w-full h-full object-cover transition-all duration-500 ease-out group-hover:-translate-x-10"
+                    />
+
+                  </div>
+
+                  <div className="w-1/2 bg-white px-5 py-4 flex flex-col justify-center transition-all duration-500 ease-out group-hover:-translate-x-6">
+
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {getName(t, item)}
+                    </h3>
+
+                    <div className="mt-4">
+
+                      <p className="text-sm text-gray-500">
+                        {t.price}
+                      </p>
+
+                      <p className="text-[#0F91D5] text-xl font-bold">
+                        {getPrice(t, item)}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </article>
+
+              ))}
+
+            </div>
+
+          )}
+
+        </div>
+      </section>
+
+      {/* MODAL - opens when clicking on any card */}
       {selectedPackage && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
@@ -462,8 +419,12 @@ const PopularTourPackages = () => {
             {/* Modal Image */}
             <div className="relative h-48 w-full">
               <Image
-                src={selectedPackage.img.startsWith("c") ? `/assets/tour/${selectedPackage.img}` : `/assets/home/${selectedPackage.img}`}
-                alt={selectedPackage.name}
+                src={
+                  selectedPackage.img.startsWith("c")
+                    ? `/assets/tour/${selectedPackage.img}`
+                    : `/assets/home/${selectedPackage.img}`
+                }
+                alt={getName(t, selectedPackage)}
                 fill
                 className="object-cover"
               />
@@ -474,9 +435,11 @@ const PopularTourPackages = () => {
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900">
-                    {selectedPackage.name}
+                    {getName(t, selectedPackage)}
                   </h3>
-                  <p className="text-gray-500 mt-1">{selectedPackage.country}</p>
+                  <p className="text-gray-500 mt-1">
+                    {getCountry(t, selectedPackage)}
+                  </p>
                 </div>
                 <button
                   onClick={() => setSelectedPackage(null)}
@@ -488,40 +451,40 @@ const PopularTourPackages = () => {
 
               <div className="mt-4">
                 <p className="text-gray-600 leading-relaxed">
-                  {selectedPackage.description}
+                  {getDescription(t, selectedPackage)}
                 </p>
               </div>
 
               <div className="mt-6 pt-4 border-t border-gray-100">
-            <p className="text-sm text-gray-500">
-              Starting From
-            </p>
+                <p className="text-sm text-gray-500">
+                  {t.startingFrom}
+                </p>
                 <p className="text-[#0F91D5] text-2xl font-bold">
-                  {selectedPackage.price}
+                  {getPrice(t, selectedPackage)}
                 </p>
               </div>
 
               {/* NEW WHATSAPP LEARN MORE BUTTON */}
-             <a
-  href={getWhatsAppLink(selectedPackage)}
-  target="_blank"
-  rel="noopener noreferrer"
-  className="mt-6 flex items-center justify-center gap-2 w-full bg-[#0F91D5] text-white py-3 rounded-xl font-semibold hover:bg-[#0d80bd] transition-all duration-300 shadow-md hover:shadow-xl"
->
-  <svg
-    className="w-5 h-5 fill-current"
-    viewBox="0 0 24 24"
-  >
-    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.457L0 24zm6.59-4.846c1.6.95 3.488 1.451 5.42 1.452 5.352 0 9.709-4.357 9.712-9.711.002-2.595-1.005-5.034-2.837-6.867-1.833-1.833-4.274-2.842-6.872-2.843-5.358 0-9.713 4.358-9.716 9.713-.001 2.05.535 4.05 1.553 5.81l-1.018 3.719 3.818-1.001zM17.486 14.4c-.3-.149-1.774-.875-2.048-.974-.274-.1-.474-.149-.674.149-.2.3-.774.974-.949 1.174-.175.2-.35.225-.65.075-.3-.15-1.265-.467-2.41-1.487-.893-.797-1.496-1.78-1.671-2.08-.175-.3-.019-.463.13-.612.135-.133.3-.35.45-.525.15-.175.2-.3.3-.5.1-.2.05-.375-.025-.525-.075-.15-.674-1.625-.924-2.225-.244-.588-.493-.508-.674-.517-.175-.008-.375-.01-.575-.01-.2 0-.525.075-.8 1.375-.275 1.25.375 2.45.425 2.525.05.075 1.225 1.872 2.969 2.623.415.179.738.286.99.366.417.133.796.114 1.096.07.334-.051 1.774-.726 2.024-1.392.25-.666.25-1.238.175-1.358-.075-.12-.275-.195-.575-.346z" />
-  </svg>
+              <a
+                href={getWhatsAppLink(selectedPackage)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 flex items-center justify-center gap-2 w-full bg-[#0F91D5] text-white py-3 rounded-xl font-semibold hover:bg-[#0d80bd] transition-all duration-300 shadow-md hover:shadow-xl"
+              >
+                <svg
+                  className="w-5 h-5 fill-current"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.457L0 24zm6.59-4.846c1.6.95 3.488 1.451 5.42 1.452 5.352 0 9.709-4.357 9.712-9.711.002-2.595-1.005-5.034-2.837-6.867-1.833-1.833-4.274-2.842-6.872-2.843-5.358 0-9.713 4.358-9.716 9.713-.001 2.05.535 4.05 1.553 5.81l-1.018 3.719 3.818-1.001zM17.486 14.4c-.3-.149-1.774-.875-2.048-.974-.274-.1-.474-.149-.674.149-.2.3-.774.974-.949 1.174-.175.2-.35.225-.65.075-.3-.15-1.265-.467-2.41-1.487-.893-.797-1.496-1.78-1.671-2.08-.175-.3-.019-.463.13-.612.135-.133.3-.35.45-.525.15-.175.2-.3.3-.5.1-.2.05-.375-.025-.525-.075-.15-.674-1.625-.924-2.225-.244-.588-.493-.508-.674-.517-.175-.008-.375-.01-.575-.01-.2 0-.525.075-.8 1.375-.275 1.25.375 2.45.425 2.525.05.075 1.225 1.872 2.969 2.623.415.179.738.286.99.366.417.133.796.114 1.096.07.334-.051 1.774-.726 2.024-1.392.25-.666.25-1.238.175-1.358-.075-.12-.275-.195-.575-.346z" />
+                </svg>
 
-  Contact on WhatsApp
-</a>
+                {t.whatsapp}
+              </a>
               <button
                 onClick={() => setSelectedPackage(null)}
                 className="mt-3 w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
               >
-                Close
+                {t.close}
               </button>
             </div>
           </div>
@@ -531,4 +494,4 @@ const PopularTourPackages = () => {
   );
 };
 
-export default PopularTourPackages;   
+export default PopularTourPackages;

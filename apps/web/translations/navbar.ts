@@ -77,6 +77,19 @@ export const navbarTranslations = {
     bookNow: "Reservar",
   },
 
+  ar: {
+    destinations: "الوجهات",
+    umrah: "العمرة",
+    visa: "التأشيرات",
+    packages: "الباقات",
+    about: "من نحن",
+    contact: "اتصل بنا",
+    pakistanVisa: "تأشيرة باكستان",
+    saudiVisa: "تأشيرة السعودية",
+    otherVisa: "تأشيرات أخرى",
+    bookNow: "احجز الآن",
+  },
+
   ur: {
     destinations: "منزلیں",
     umrah: "عمرہ",

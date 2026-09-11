@@ -1,74 +1,94 @@
 "use client";
 
 import { useState } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
+import {
+  homepageTranslations,
+  type LanguageCode,
+  type TourCategoryKey,
+  type TourItemKey,
+} from "@/translations/homepage";
 
-// Categories JSON
-const categories = [
-  { id: 1, name: "Popular" },
-  { id: 2, name: "Family" },
-  { id: 3, name: "Honeymoon" },
-  { id: 4, name: "Summer" },
-  { id: 5, name: "Cultural" },
+// Categories JSON — text lives in the translation file, only the key stays here
+const categories: { id: number; key: TourCategoryKey }[] = [
+  { id: 1, key: "popular" },
+  { id: 2, key: "family" },
+  { id: 3, key: "honeymoon" },
+  { id: 4, key: "summer" },
+  { id: 5, key: "cultural" },
 ];
 
 // Tours JSON
-const tours = [
+const tours: { id: number; key: TourItemKey; category: TourCategoryKey }[] = [
   {
     id: 1,
-    title: "Dubai Adventure",
-    category: "Popular",
+    key: "dubaiAdventure",
+    category: "popular",
   },
   {
     id: 2,
-    title: "Family Turkey Trip",
-    category: "Family",
+    key: "familyTurkey",
+    category: "family",
   },
   {
     id: 3,
-    title: "Maldives Couple Tour",
-    category: "Honeymoon",
+    key: "maldivesCouple",
+    category: "honeymoon",
   },
   {
     id: 4,
-    title: "Northern Areas",
-    category: "Summer",
+    key: "northernAreas",
+    category: "summer",
   },
   {
     id: 5,
-    title: "Lahore Heritage Tour",
-    category: "Cultural",
+    key: "lahoreHeritage",
+    category: "cultural",
   },
 ];
 
 export default function TourCategories() {
-  const [selectedCategory, setSelectedCategory] = useState("Popular");
+  const { language } = useLanguage();
 
-  // Filter data according to selected category
-  const filteredTours = tours.filter(
-    (tour) => tour.category === selectedCategory
-  );
+  const t =
+    homepageTranslations[language as LanguageCode] || homepageTranslations.en;
+
+  const [selectedCategory, setSelectedCategory] =
+    useState<TourCategoryKey>("popular");
+
+  // Filter data according to selected category.
+  // Each tour carries a `title` that already follows the selected language,
+  // ready for the render block below.
+  const filteredTours = tours
+    .filter((tour) => tour.category === selectedCategory)
+    .map((tour) => ({
+      ...tour,
+      title:
+        t.tours.items[tour.key] || homepageTranslations.en.tours.items[tour.key],
+    }));
 
   return (
     <div>
       {/* Categories */}
       <div
         className="flex flex-wrap gap-2 sm:gap-3 mb-10"
-        aria-label="Tour Categories"
+        aria-label={t.tours.categoriesAria}
       >
         {categories.map((category) => (
           <button
             key={category.id}
-            onClick={() => setSelectedCategory(category.name)}
+            onClick={() => setSelectedCategory(category.key)}
             className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm transition cursor-pointer
               
               ${
-                selectedCategory === category.name
+                selectedCategory === category.key
                   ? "bg-[#0F91D5] text-white"
                   : "bg-gray-200 text-black"
               }
             `}
           >
-            {category.name}
+            {t.tours.categories[category.key] ||
+              homepageTranslations.en.tours.categories[category.key]}
           </button>
         ))}
       </div>

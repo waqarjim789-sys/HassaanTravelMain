@@ -4,6 +4,12 @@ import React from "react";
 import { BookingSearchFormInputField } from "../BookingSearchFormInputField";
 import DateInputField from "./DateInputField";
 import { HiOutlineSwitchHorizontal } from "react-icons/hi";
+import { useLanguage } from "@/components/LanguageProvider";
+import {
+  homepageTranslations,
+  type BookingFormTranslation,
+  type LanguageCode,
+} from "@/translations/homepage";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -45,24 +51,26 @@ const formatDate = (date: string | Date) => {
   return new Date(date).toLocaleDateString("en-GB");
 };
 
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
+/** Month name in the active language (January / januari / Januar / يناير …) */
+const getMonthName = (monthIndex: number, locale: string) =>
+  new Date(Date.UTC(2000, monthIndex, 1)).toLocaleString(locale, {
+    month: "long",
+    timeZone: "UTC",
+  });
 
-const formatFlexibleMonths = (months: string[]) => {
+const formatFlexibleMonths = (months: string[], locale: string) => {
   return months
     .map((monthKey) => {
-      const [year, month] = monthKey.split("-");
+      const [, month] = monthKey.split("-");
       const monthIndex = Number(month);
 
       if (!Number.isNaN(monthIndex) && monthIndex >= 0 && monthIndex <= 11) {
-        return MONTH_NAMES[monthIndex];
+        return getMonthName(monthIndex, locale);
       }
 
       const parsed = new Date(monthKey);
       if (!Number.isNaN(parsed.getTime())) {
-        return MONTH_NAMES[parsed.getMonth()];
+        return getMonthName(parsed.getMonth(), locale);
       }
 
       return monthKey;
@@ -70,13 +78,16 @@ const formatFlexibleMonths = (months: string[]) => {
     .join(", ");
 };
 
-const formatDateField = (value: DateFieldValue | string): string => {
+const formatDateField = (
+  value: DateFieldValue | string,
+  bf: BookingFormTranslation
+): string => {
   if (typeof value === "string") {
-    return value || "Not specified";
+    return value || bf.notSpecified;
   }
 
   if (value.mode === "flexible" && value.flexibleMonths?.length > 0) {
-    return formatFlexibleMonths(value.flexibleMonths);
+    return formatFlexibleMonths(value.flexibleMonths, bf.dateLocale);
   }
 
   const { start, end } = value.range ?? {};
@@ -89,7 +100,7 @@ const formatDateField = (value: DateFieldValue | string): string => {
     return formatDate(start);
   }
 
-  return "Not specified";
+  return bf.notSpecified;
 };
 
 // ─── Validation helpers ───────────────────────────────────────────────────────
@@ -110,18 +121,31 @@ const isValidContact = (value: string): boolean => {
   return isValidEmail(trimmed) || isValidPhone(trimmed);
 };
 
-const getContactError = (value: string): string => {
+const getContactError = (
+  value: string,
+  bf: BookingFormTranslation
+): string => {
   const trimmed = value.trim();
-  if (!trimmed) return "Phone number or email is required";
+  if (!trimmed) return bf.errContactRequired;
   if (isValidEmail(trimmed) || isValidPhone(trimmed)) return "";
   // Give a specific hint depending on what they seem to be typing
-  if (trimmed.includes("@")) return "Enter a valid email address";
-  return "Enter a valid phone number (at least 7 digits)";
+  if (trimmed.includes("@")) return bf.errEmail;
+  return bf.errPhone;
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const BookingSearchForm = () => {
+  const { language } = useLanguage();
+
+  const t =
+    homepageTranslations[language as LanguageCode] || homepageTranslations.en;
+
+  const bf = t.bookingForm;
+
+  // The office always receives the request in English
+  const emailLabels = homepageTranslations.en.bookingForm;
+
   const [formData, setFormData] = React.useState<FormData>({
     from: "",
     to: "",
@@ -153,11 +177,13 @@ const BookingSearchForm = () => {
 
   // ─── Validation ──────────────────────────────────────────────────────────
 
-  const fromError = touched.from && !formData.from.trim() ? "From is required" : "";
-  const toError = touched.to && !formData.to.trim() ? "To is required" : "";
+  const fromError = touched.from && !formData.from.trim() ? bf.errFrom : "";
+  const toError = touched.to && !formData.to.trim() ? bf.errTo : "";
   const travellersError =
-    touched.travellers && !formData.travellers.trim() ? "Travellers info is required" : "";
-  const contactError = touched.contactNumber ? getContactError(formData.contactNumber) : "";
+    touched.travellers && !formData.travellers.trim() ? bf.errTravellers : "";
+  const contactError = touched.contactNumber
+    ? getContactError(formData.contactNumber, bf)
+    : "";
 
   const isFormValid =
     formData.from.trim() !== "" &&
@@ -185,8 +211,8 @@ const BookingSearchForm = () => {
           formType: "flightSearch",
           from: formData.from,
           to: formData.to,
-          depart: formatDateField(formData.depart),
-          returnDate: formatDateField(formData.returnDate),
+          depart: formatDateField(formData.depart, emailLabels),
+          returnDate: formatDateField(formData.returnDate, emailLabels),
           travellers: formData.travellers,
           contactNumber: formData.contactNumber,
         }),
@@ -222,8 +248,8 @@ const BookingSearchForm = () => {
         {/* FROM */}
         <div className="relative w-full min-w-0 lg:col-span-2">
           <BookingSearchFormInputField
-            label="From *"
-            placeHolder="Country, city or airport"
+            label={bf.labelFrom}
+            placeHolder={bf.phLocation}
             value={formData.from}
             handleChange={(name: string, value: string) => {
               handleChange("from", value);
@@ -234,6 +260,8 @@ const BookingSearchForm = () => {
           <button
             type="button"
             onClick={handleSwap}
+            aria-label={bf.swap}
+            title={bf.swap}
             className="hidden lg:flex absolute top-1/2 -right-3.25 -translate-y-1/2 w-6 h-6 rounded-full border border-blue-500 text-blue-500 bg-white items-center justify-center shadow-sm z-30 hover:bg-blue-50 transition"
           >
             <HiOutlineSwitchHorizontal size={12} />
@@ -243,8 +271,8 @@ const BookingSearchForm = () => {
         {/* TO */}
         <div className="w-full min-w-0 lg:col-span-2">
           <BookingSearchFormInputField
-            label="To *"
-            placeHolder="Country, city or airport"
+            label={bf.labelTo}
+            placeHolder={bf.phLocation}
             value={formData.to}
             handleChange={(name: string, value: string) => {
               handleChange("to", value);
@@ -256,12 +284,12 @@ const BookingSearchForm = () => {
         {/* DEPART */}
         <div className="w-full min-w-0 lg:col-span-2">
           <DateInputField
-            label="Depart"
-            placeHolder="Add Date"
+            label={bf.labelDepart}
+            placeHolder={bf.phDate}
             value={
               typeof formData.depart === "string"
                 ? formData.depart
-                : formatDateField(formData.depart)
+                : formatDateField(formData.depart, bf)
             }
             handleChange={(value: string) => handleChange("depart", value)}
           />
@@ -270,12 +298,12 @@ const BookingSearchForm = () => {
         {/* RETURN */}
         <div className="w-full min-w-0 lg:col-span-2">
           <DateInputField
-            label="Return"
-            placeHolder="Add Date"
+            label={bf.labelReturn}
+            placeHolder={bf.phDate}
             value={
               typeof formData.returnDate === "string"
                 ? formData.returnDate
-                : formatDateField(formData.returnDate)
+                : formatDateField(formData.returnDate, bf)
             }
             handleChange={(value: string) => handleChange("returnDate", value)}
           />
@@ -284,8 +312,8 @@ const BookingSearchForm = () => {
         {/* TRAVELLERS */}
         <div className="w-full min-w-0 lg:col-span-2">
           <BookingSearchFormInputField
-            label="Travellers & Cabin *"
-            placeHolder="Passenger, Economy"
+            label={bf.labelTravellers}
+            placeHolder={bf.phTravellers}
             value={formData.travellers}
             handleChange={(name: string, value: string) => {
               handleChange("travellers", value);
@@ -297,8 +325,8 @@ const BookingSearchForm = () => {
         {/* CONTACT NUMBER / EMAIL FIELD (now mandatory + validated) */}
         <div className="w-full min-w-0 lg:col-span-2">
           <BookingSearchFormInputField
-            label="Contact / Email *"
-            placeHolder="Phone or Email"
+            label={bf.labelContact}
+            placeHolder={bf.phContact}
             value={formData.contactNumber}
             handleChange={(name: string, value: string) => {
               handleChange("contactNumber", value);
@@ -316,27 +344,26 @@ const BookingSearchForm = () => {
           }
           className="bg-[#0F91D5] hover:bg-blue-600 text-white w-full h-14 lg:h-full lg:col-span-1 rounded-xl font-semibold shadow-sm flex items-center justify-center transition disabled:opacity-60"
         >
-          {status === "loading" ? "..." : status === "success" ? "✓" : "Submit"}
+          {status === "loading" ? "..." : status === "success" ? "✓" : bf.submit}
         </button>
       </form>
 
       {/* STATUS MESSAGES */}
       {status === "success" && (
         <p className="text-green-600 text-xl text-center mt-3">
-          ✅ Your Request has been sent successfully. For faster and direct prices, contact us right away via the WhatsApp Icon or call us on +31 (0) 10 485 7673.
+          ✅ {bf.success}
         </p>
       )}
       {status === "error" && (
         <p className="text-red-500 text-sm text-center mt-3">
-          ❌ Something went wrong. Please try again.
+          ❌ {bf.error}
         </p>
       )}
       {!isFormValid &&
         (touched.from || touched.to || touched.travellers || touched.contactNumber) &&
         status === "idle" && (
           <p className="text-red-500 text-sm text-center mt-3">
-            ⚠️ Please fill in all required fields with a valid phone number or email so we can
-            contact you.
+            ⚠️ {bf.incomplete}
           </p>
         )}
     </section>

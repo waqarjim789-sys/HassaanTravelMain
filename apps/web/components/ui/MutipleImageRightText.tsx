@@ -1,13 +1,34 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Plane, Binoculars, Phone } from "lucide-react";
 import { FaStackExchange } from "react-icons/fa";
+import { useLanguage } from "@/components/LanguageProvider";
+import {
+  homepageTranslations,
+  type LanguageCode,
+} from "@/translations/homepage";
 
 export default function MutipleImageRightText({
   imageData,
 }: {
   imageData: string[];
 }) {
+  const { language } = useLanguage();
+
+  const t =
+    homepageTranslations[language as LanguageCode] || homepageTranslations.en;
+
+  const wt = t.whyTrusted;
+
+  const features = [
+    { icon: <Plane size={16} />, text: wt.featureFlights },
+    { icon: <FaStackExchange size={16} />, text: wt.featureVisa },
+    { icon: <Binoculars size={16} />, text: wt.featureLanguages },
+    { icon: <Phone size={16} />, text: wt.featureContact },
+  ];
+
   return (
     <section className="relative w-full py-12 sm:py-20 overflow-hidden">
       {/* Background Image */}
@@ -26,7 +47,7 @@ export default function MutipleImageRightText({
         <div className="relative w-full min-h-[450px]">
           <Image
             src={imageData[0] || ""}
-            alt="Your Trusted Visa Partner"
+            alt={wt.imageAlt}
             loading="lazy"
             width={220}
             height={250}
@@ -35,7 +56,7 @@ export default function MutipleImageRightText({
 
           <Image
             src={imageData[1] || ""}
-            alt="Your Trusted Visa Partner"
+            alt={wt.imageAlt}
             loading="lazy"
             width={200}
             height={200}
@@ -44,7 +65,7 @@ export default function MutipleImageRightText({
 
           <Image
             src={imageData[2] || ""}
-            alt="Your Trusted Visa Partner"
+            alt={wt.imageAlt}
             loading="lazy"
             width={200}
             height={220}
@@ -55,7 +76,7 @@ export default function MutipleImageRightText({
           <div className="absolute top-[170px] left-[30px] w-[250px] h-[230px] border-[5px] border-white shadow-md z-10 overflow-hidden">
             <Image
               src={imageData[3] || ""}
-              alt="Your Trusted Visa Partner"
+              alt={wt.imageAlt}
               loading="lazy"
               width={250}
               height={230}
@@ -68,44 +89,26 @@ export default function MutipleImageRightText({
         {/* RIGHT TEXT */}
         <div className="flex flex-col justify-center">
           <h2 className="text-4xl md:text-3xl font-extrabold leading-tight text-black">
-            Why Hassaan Travel is Your Trusted Partner
+            {wt.title}
           </h2>
 
           <p className="mt-5 text-gray-600 text-base leading-relaxed">
-            We're more than just a travel agency; we're your passport to
-            extraordinary experiences. Here's why you should choose us:
+            {wt.intro}
           </p>
 
           <div className="mt-8 space-y-4">
-            <Feature
-              icon={<Plane size={16} />}
-              text="Assistance in obtaining the best and cheapest flights to your destination 
-              Quick, transparent service through WhatsApp chat."
-            />
-
-            <Feature
-              icon={<FaStackExchange size={16} />}
-              text="Expertise in handling visa applications for multiple countries."
-            />
-
-            <Feature
-              icon={<Binoculars size={16} />}
-              text="Customer support in multiple languages."
-            />
-
-            <Feature
-              icon={<Phone size={16} />}
-              text="Contact Us Today – See all of our services."
-            />
+            {features.map((feature, i) => (
+              <Feature key={i} icon={feature.icon} text={feature.text} />
+            ))}
           </div>
 
           {/* FIXED LINK: Styled the Link directly instead of nesting a button */}
           <div className="mt-10">
-            <Link 
-              href="/contact-us" 
+            <Link
+              href="/contact-us"
               className="inline-block bg-[#0F91D5] hover:bg-blue-600 transition text-white px-8 py-4 rounded-xl font-semibold shadow-lg text-center"
             >
-              Contact Us Today
+              {wt.cta}
             </Link>
           </div>
         </div>

@@ -161,11 +161,11 @@ export default function Navbar() {
         {open && (
           <div className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col items-center py-6 gap-2 md:hidden z-50">
             <Link className="text-gray-700 font-medium py-2" href="/destinations" onClick={() => setOpen(false)}>
-              Destinations
+              {t.destinations}
             </Link>
 
             <Link className="text-gray-700 font-medium py-2" href="/umrah" onClick={() => setOpen(false)}>
-              Umrah
+              {t.umrah}
             </Link>
 
             {/* MOBILE VISA SECTION */}
@@ -176,7 +176,7 @@ export default function Navbar() {
                   onClick={() => setOpen(false)}
                   className="hover:text-[#0F91D5]"
                 >
-                  Visa
+                  {t.visa}
                 </Link>
                 
                 <button
@@ -197,28 +197,28 @@ export default function Navbar() {
               {mobileVisaOpen && (
                 <div className="flex flex-col items-center gap-3 mt-2 mb-2 bg-gray-50/50 w-full py-2">
                   <Link href="/pakistan" className="text-sm text-gray-600 hover:text-[#0F91D5]" onClick={() => setOpen(false)}>
-                    Pakistan Visa
+                    {t.pakistanVisa}
                   </Link>
                   <Link href="/netherland" className="text-sm text-gray-600 hover:text-[#0F91D5]" onClick={() => setOpen(false)}>
-                    Netherlands Visa
+                    {t.otherVisa}
                   </Link>
                   <Link href="/uae" className="text-sm text-gray-600 hover:text-[#0F91D5]" onClick={() => setOpen(false)}>
-                    UAE Visa
+                    {t.otherVisa}
                   </Link>
                 </div>
               )}
             </div>
 
             <Link className="text-gray-700 font-medium py-2" href="/packages" onClick={() => setOpen(false)}>
-              Package
+              {t.packages}
             </Link>
 
             <Link className="text-gray-700 font-medium py-2" href="/about-us" onClick={() => setOpen(false)}>
-              About
+              {t.about}
             </Link>
 
             <Link className="text-gray-700 font-medium py-2" href="/contact-us" onClick={() => setOpen(false)}>
-              Contact
+              {t.contact}
             </Link>
 
             {/* MOBILE BOOK NOW */}

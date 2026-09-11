@@ -1,46 +1,70 @@
 "use client";
 
+import { useLanguage } from "@/components/LanguageProvider";
+import {
+  homepageTranslations,
+  type LanguageCode,
+  type ReviewKey,
+} from "@/translations/homepage";
+
 type Props = {
   bgImage?: string; // optional
 };
 
 type Review = {
+  key: ReviewKey;
   name: string;
   avatarLetter: string;
   avatarBg: string;
-  time: string;
+  /** How many months ago the review was left */
+  monthsAgo: number;
   rating: number;
-  text: string;
 };
+
+// Total number of Google reviews shown next to the score
+const TOTAL_REVIEWS = 243;
 
 const reviewsData: Review[] = [
   {
+    key: "zafarBaig",
     name: "Zafar Baig",
     avatarLetter: "Z",
     avatarBg: "bg-orange-600",
-    time: "A month ago",
+    monthsAgo: 1,
     rating: 5,
-    text: "Great experience with Hassaan Travel! The staff was friendly, professional, and made the whole booking process easy and stress-free. Everything was well organized, and they were always available to answer my questions. Highly recommend their services for a smooth and enjoyable travel experience!",
   },
   {
+    key: "maryamNawaz",
     name: "Maryam Nawaz",
     avatarLetter: "M",
     avatarBg: "bg-purple-600",
-    time: "5 months ago",
+    monthsAgo: 5,
     rating: 5,
-    text: "Very professional and efficient service. I just bought 5 flight tickets at a great price with 40kg baggage allowance. Their communication was quick and clear. Highly recommended!",
   },
   {
+    key: "armghanAli",
     name: "Armghan Ali",
     avatarLetter: "A",
     avatarBg: "bg-teal-600",
-    time: "7 months ago",
+    monthsAgo: 7,
     rating: 5,
-    text: "Had a wonderful experience with this travel agency Hassan Travel. Everything was well-organized and stress-free. The staff were friendly, helpful, and professional. Great communication and smooth arrangements throughout the process. Highly recommend their service!",
   },
 ];
 
 const Testimonials = ({ bgImage }: Props) => {
+  const { language } = useLanguage();
+
+  const t =
+    homepageTranslations[language as LanguageCode] || homepageTranslations.en;
+
+  const tt = t.testimonials;
+  const en = homepageTranslations.en.testimonials;
+
+  const formatTime = (monthsAgo: number) =>
+    monthsAgo === 1
+      ? tt.monthAgo
+      : tt.monthsAgo.replace("{count}", String(monthsAgo));
+
   return (
     <section className="relative py-12 sm:py-20 px-4 sm:px-8 md:px-16 text-center overflow-hidden bg-gray-50/50">
       {/* ✅ Background Image */}
@@ -57,16 +81,20 @@ const Testimonials = ({ bgImage }: Props) => {
       <div className="relative z-10 max-w-6xl mx-auto flex flex-col items-center">
         {/* 🔹 Exact Heading Kept Intact */}
         <h2 className="text-2xl sm:text-3xl font-bold text-[#0F91D5] mb-2">
-          What Our Customers Say
+          {tt.heading}
         </h2>
         
         {/* Google ACCREDITED Rating Info */}
         <div className="flex items-center gap-1 mb-8 sm:mb-12">
-          <span className="text-lg font-bold text-gray-700">4.9</span>
+          <span className="text-lg font-bold text-gray-700">
+            {tt.ratingValue}
+          </span>
           <div className="flex text-amber-400 text-sm">
             {"★".repeat(5)}
           </div>
-          <span className="text-xs text-gray-500 font-medium">(243 reviews)</span>
+          <span className="text-xs text-gray-500 font-medium">
+            {tt.reviewsCount.replace("{count}", String(TOTAL_REVIEWS))}
+          </span>
         </div>
 
         {/* ✅ Dynamic Responsive Cards Grid */}
@@ -85,7 +113,9 @@ const Testimonials = ({ bgImage }: Props) => {
                   <h3 className="font-bold text-gray-900 text-base leading-tight">
                     {review.name}
                   </h3>
-                  <p className="text-xs text-gray-400 mt-0.5">{review.time}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {formatTime(review.monthsAgo)}
+                  </p>
                 </div>
               </div>
 
@@ -96,7 +126,7 @@ const Testimonials = ({ bgImage }: Props) => {
 
               {/* Review Text */}
               <p className="text-gray-600 text-sm leading-relaxed italic flex-1">
-                "{review.text}"
+                &quot;{tt.reviews[review.key] || en.reviews[review.key]}&quot;
               </p>
             </div>
           ))}
@@ -109,7 +139,7 @@ const Testimonials = ({ bgImage }: Props) => {
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-[#0F91D5] hover:bg-[#0d80bc] text-white font-semibold px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all duration-200 text-sm sm:text-base group"
         >
-          <span>Review Us on Google</span>
+          <span>{tt.cta}</span>
           <svg 
             className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" 
             fill="none" 

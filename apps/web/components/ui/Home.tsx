@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { Plane, Bed, ScrollText } from "lucide-react";
 import { MdOutlineSupportAgent } from "react-icons/md";
@@ -14,6 +16,8 @@ import PopularTourPackages from "@/components/layout/home/PopularTourPackages";
 // INTEGRATED VISA SERVICE IMPORTS
 import Services from "@/components/layout/visas/Services";
 import MutipleImageRightText from "@/components/ui/MutipleImageRightText";
+import { useLanguage } from "../LanguageProvider";
+import { homepageTranslations } from "../../translations/homepage";
 
 const visaSolution = {
   head: (
@@ -55,6 +59,9 @@ const imageData = [
 ];
 
 export default function HomeMain() {
+  const { language } = useLanguage();
+  const t = homepageTranslations[language];
+
   return (
     <main className="w-full text-gray-800">
       {/* ================= HERO SECTION ================= */}
@@ -92,19 +99,17 @@ export default function HomeMain() {
           {/* HEADING BLOCK */}
           <div className="w-full tracking-tight">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold block whitespace-normal md:whitespace-nowrap">
-              Cheap Tickets Smooth <span className="text-blue-400">Journeys</span>
+              {t.heroTitle}
             </h1>
 
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-blue-400 mt-2 sm:mt-3 block">
-              From Booking to Boarding
+              {t.heroHighlight}
             </h2>
           </div>
 
           {/* DESC */}
           <p className="mt-6 text-gray-200 text-sm md:text-lg max-w-3xl mx-auto leading-relaxed">
-            Experience seamless, luxury travel with expert visa processing,
-            bespoke Umrah packages, and personalized guidance. Trusted by
-            10,000+ travelers.
+            {t.heroSubtitle}
           </p>
         </div>
         
@@ -160,12 +165,11 @@ export default function HomeMain() {
 
         <div className="relative z-10">
           <h2 className="text-2xl sm:text-3xl font-bold mb-3">
-            Ready to Start Your Journey?
+            {t.ctaTitle}
           </h2>
 
           <p className="text-sm text-white/80 mb-6 max-w-xl mx-auto">
-            Contact us today for a free consultation and discover how we can
-            make your travel dreams a reality.
+            {t.ctaDescription}
           </p>
 
           <Link
@@ -174,7 +178,7 @@ export default function HomeMain() {
             rel="noopener noreferrer"
             className="inline-block bg-[#d4e157] hover:bg-[#d4e157] text-black px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-sm font-semibold hover:bg-lime-500 transition-colors"
           >
-            Request a Free Quote →
+            {t.ctaButton}
           </Link>
         </div>
       </section>
