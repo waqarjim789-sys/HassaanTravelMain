@@ -79,9 +79,12 @@ const SideIconDesc = ({ data }: SideIconDescProps) => {
 
   const en = homepageTranslations.en;
 
-  const isRtl = RTL_LANGUAGES.includes(
-    String(language).toLowerCase().split(/[-_]/)[0]
-  );
+  const normalizedLanguage =
+  (language || "en")
+    .toLowerCase()
+    .split(/[-_]/)[0] || "en";
+
+const isRtl = RTL_LANGUAGES.includes(normalizedLanguage);
 
   // Heading: explicit key -> English wording match -> whatever the parent passed
   const sectionKey =
