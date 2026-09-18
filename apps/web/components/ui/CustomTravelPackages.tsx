@@ -204,7 +204,10 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <section className="relative w-full py-12 sm:py-20 overflow-hidden flex items-center justify-center">
+    <section
+  id="umrah-form"
+  className="relative w-full py-12 sm:py-20 overflow-hidden flex items-center justify-center"
+>
       <div className="relative z-10 w-full max-w-5xl mx-auto px-4 font-sans">
 
         {/* HEADING */}
