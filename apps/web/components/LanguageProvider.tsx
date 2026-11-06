@@ -66,7 +66,7 @@ function resolveLocale(value: unknown): Locale | null {
   }
 
   // Region stripped, e.g. "nl-NL" / "nl_BE" -> "nl"
-  const base = raw.toLowerCase().split(/[-_]/)[0];
+  const base = raw.toLowerCase().split(/[-_]/)[0] ?? "";
 
   if (isSupportedLocale(base as Locale)) {
     return base as Locale;
@@ -83,21 +83,39 @@ function resolveLocale(value: unknown): Locale | null {
 }
 
 
+export type LanguageProviderProps = {
+  children: ReactNode;
+
+  /**
+   * Language already resolved on the server (cookie, region or
+   * Accept-Language). When provided, the first render uses it, so the
+   * server HTML and the first client render match: no Dutch/LTR flash
+   * for Urdu or Arabic visitors.
+   *
+   * Optional: without it the provider behaves exactly as before.
+   */
+  initialLocale?: string | null;
+};
+
+
 export function LanguageProvider({
   children,
-}: {
-  children: ReactNode;
-}) {
+  initialLocale,
+}: LanguageProviderProps) {
+
+  const serverLocale = resolveLocale(initialLocale);
 
   const [language, setLanguage] =
-    useState<Locale>(DEFAULT_LOCALE);
+    useState<Locale>(serverLocale ?? DEFAULT_LOCALE);
 
 
-  // Resolve the language once on mount: saved choice wins, then detection,
-  // otherwise the default already in state.
+  // Re-check once on mount.
+  // 1. A saved choice always wins (also covers localStorage-only saves
+  //    when cookies are blocked and the server could not see them).
+  // 2. Browser detection runs only when the server did not resolve a
+  //    language, so the server's decision is never overridden.
   useEffect(() => {
 
-    // 1. User previously selected a language
     const saved = resolveLocale(getSavedLanguage());
 
     if (saved) {
@@ -106,17 +124,20 @@ export function LanguageProvider({
     }
 
 
-    // 2. Region / browser detection (not persisted — only an explicit
-    //    choice via changeLanguage is remembered)
-    const detected = resolveLocale(detectBrowserLanguage());
-
-    if (detected) {
-      setLanguage(detected);
+    if (serverLocale) {
       return;
     }
 
 
-    // 3. Fall through to DEFAULT_LOCALE
+    // Not persisted: only an explicit choice via changeLanguage is remembered.
+    const detected = resolveLocale(detectBrowserLanguage());
+
+    if (detected) {
+      setLanguage(detected);
+    }
+
+    // Otherwise DEFAULT_LOCALE stays.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 

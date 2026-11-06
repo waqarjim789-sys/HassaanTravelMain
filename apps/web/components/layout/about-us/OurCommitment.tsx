@@ -1,109 +1,104 @@
+"use client";
+
 import React from "react";
 import { Star } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
+import { getDirection } from "@/i18n";
+import { resolveLocale } from "@/lib/createTranslator";
+import { aboutUsTranslations } from "@/translations/aboutUs";
+
+const RATING = 4.9;
 
 const OurCommitment = () => {
+  const { language } = useLanguage();
+  const locale = resolveLocale(language);
+  const t = aboutUsTranslations[locale] ?? aboutUsTranslations.en;
+
+  // "4.9" or "4,9" depending on the language; Arabic keeps Latin digits
+  // to match the rest of the site.
+  const rating = new Intl.NumberFormat(
+    locale === "ar" ? "ar-u-nu-latn" : locale,
+    { minimumFractionDigits: 1, maximumFractionDigits: 1 }
+  ).format(RATING);
+
   return (
-    <section className="relative w-full py-12 sm:py-20 overflow-hidden flex items-center justify-center">
+    <section
+      dir={getDirection(language)}
+      className="relative w-full py-12 sm:py-20 overflow-hidden flex items-center justify-center"
+    >
       {/* BACKGROUND IMAGE */}
       <img
         src="/assets/bgimage/h2.webp"
         loading="lazy"
         alt=""
+        aria-hidden="true"
         className="absolute inset-0 w-full h-full object-cover opacity-[0.18]"
       />
 
-      <div className="relative max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center z-20">
-        {/* LEFT IMAGE */}
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 grid md:grid-cols-2 gap-12 items-center z-20">
+
+        {/* IMAGE SIDE (start side: left in LTR, right in RTL) */}
         <div className="relative">
           <img
             src="/assets/about-us/customer.webp"
-            alt="Customer"
+            alt=""
             loading="lazy"
             className="rounded-2xl shadow-lg w-full h-95 object-cover"
           />
 
-          {/* RATING CARD */}
-          <div className="absolute top-6 right-0 -translate-x-1/2 bg-white rounded-xl shadow px-4 py-2 flex gap-2">
-            <span className="text-blue-500 text-lg">
+          {/* RATING CARD – near the image's top end corner */}
+          <div className="absolute top-6 end-0 -translate-x-1/2 rtl:translate-x-1/2 bg-white rounded-xl shadow px-4 py-2 flex gap-2">
+            <span aria-hidden="true" className="text-blue-500 text-lg">
               <Star className="fill-blue-500" />
             </span>
-            <div>
-              <p className="text-[#0F91D5] font-bold text-sm">4.9</p>
-              <p className="text-gray-500 text-[11px]">Customer Rating</p>
+
+            <div className="text-start">
+              <p className="text-[#0F91D5] font-bold text-sm">{rating}</p>
+
+              <p className="text-gray-500 text-[11px]">{t.commitment.rating}</p>
             </div>
           </div>
         </div>
 
-        {/* RIGHT TEXT */}
-        <div>
+        {/* TEXT SIDE */}
+        <div className="min-w-0 text-start">
+
           {/* HEADING */}
           <h2 className="text-3xl md:text-4xl font-bold leading-tight text-black">
-            Customer Satisfaction is <br />
-            <span className="text-[#b6d84f]">Our Priority</span>
+            {t.commitment.title}
+            <br />
+            <span className="text-[#b6d84f]">{t.commitment.titleHighlight}</span>
           </h2>
 
           {/* TEXT */}
           <p className="text-gray-600 text-sm mt-4 leading-relaxed">
-            At HassaanTravel, customer satisfaction is our top priority. We
-            pride ourselves on offering competitive pricing, flexible booking
-            options, and expert advice, making every trip a stress-free and
-            memorable experience.
+            {t.commitment.paragraph1}
           </p>
 
           <p className="text-gray-600 text-sm mt-4 leading-relaxed">
-            Our team of dedicated travel professionals works around the clock to
-            ensure your journey is seamless from start to finish. We understand
-            that travel is more than just reaching a destination—it's about
-            creating memories that last a lifetime.
+            {t.commitment.paragraph2}
           </p>
 
           {/* LIST */}
           <ul className="mt-6 space-y-3 text-sm text-gray-700">
-            <li className="flex items-start gap-3">
-              <span className="w-4 h-4 mt-1 rounded-full bg-[#b6d84f] flex items-center justify-center text-white text-[10px]">
-                ✓
-              </span>
-              Competitive pricing with transparent costs
-            </li>
+            {t.commitment.benefits.map((benefit: string, index: number) => (
+              <li key={index} className="flex items-start gap-3">
+                <span
+                  aria-hidden="true"
+                  className="w-4 h-4 mt-1 rounded-full bg-[#b6d84f] flex items-center justify-center text-white text-[10px] shrink-0"
+                >
+                  ✓
+                </span>
 
-            <li className="flex items-start gap-3">
-              <span className="w-4 h-4 mt-1 rounded-full bg-[#b6d84f] flex items-center justify-center text-white text-[10px]">
-                ✓
-              </span>
-              Flexible payment and booking options
-            </li>
-
-            <li className="flex items-start gap-3">
-              <span className="w-4 h-4 mt-1 rounded-full bg-[#b6d84f] flex items-center justify-center text-white text-[10px]">
-                ✓
-              </span>
-              Expert travel advice and consultation
-            </li>
-
-            <li className="flex items-start gap-3">
-              <span className="w-4 h-4 mt-1 rounded-full bg-[#b6d84f] flex items-center justify-center text-white text-[10px]">
-                ✓
-              </span>
-              Personalized itineraries tailored to you
-            </li>
-
-            <li className="flex items-start gap-3">
-              <span className="w-4 h-4 mt-1 rounded-full bg-[#b6d84f] flex items-center justify-center text-white text-[10px]">
-                ✓
-              </span>
-              24/7 customer support throughout your journey
-            </li>
-
-            <li className="flex items-start gap-3">
-              <span className="w-4 h-4 mt-1 rounded-full bg-[#b6d84f] flex items-center justify-center text-white text-[10px]">
-                ✓
-              </span>
-              Hassle-free visa and documentation assistance
-            </li>
+                <span className="min-w-0">{benefit}</span>
+              </li>
+            ))}
           </ul>
+
         </div>
       </div>
     </section>
   );
 };
+
 export default OurCommitment;

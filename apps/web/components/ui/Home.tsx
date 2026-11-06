@@ -17,39 +17,8 @@ import PopularTourPackages from "@/components/layout/home/PopularTourPackages";
 import Services from "@/components/layout/visas/Services";
 import MutipleImageRightText from "@/components/ui/MutipleImageRightText";
 import { useLanguage } from "../LanguageProvider";
-import { homepageTranslations } from "../../translations/homepage";
-
-const visaSolution = {
-  head: (
-    <>
-      Expert Visa <span className="text-[#0F91D5]">Solutions</span>
-    </>
-  ),
-  details:
-    "Streamlined processing with guaranteed approval for all destinations",
-  data: [
-    {
-      title: "Flight Booking",
-      desc: "Book affordable flights to every destination with flexible options for individuals and families.",
-      icon: <Plane />,
-    },
-    {
-      title: "Hotel Reservations",
-      desc: "Book comfortable accommodation worldwide with ease and convenience.",
-      icon: <Bed />,
-    },
-    {
-      title: "Visa Processing",
-      desc: "Fast and reliable visa services ensuring smooth approval for travelers.",
-      icon: <ScrollText />,
-    },
-    {
-      title: "24/7 Support",
-      desc: "Round-the-clock customer support for all your travel needs.",
-      icon: <MdOutlineSupportAgent />,
-    },
-  ],
-};
+import { getHomepageTranslation } from "../../translations/homepage";
+import { getDirection } from "@/i18n";
 
 const imageData = [
   "/assets/visa/1.webp",
@@ -60,10 +29,25 @@ const imageData = [
 
 export default function HomeMain() {
   const { language } = useLanguage();
-  const t = homepageTranslations[language];
+  const t = getHomepageTranslation(language);
+  const visaSolution = {
+    head: (
+      <>
+        {t.visaHeadingStart}{" "}
+        <span className="text-[#0F91D5]">{t.visaHeadingHighlight}</span>
+      </>
+    ),
+    details: t.sideSections.visaSolutions!.details,
+    data: [
+      { ...t.sideIcons.flightBooking!, icon: <Plane /> },
+      { ...t.sideIcons.hotelReservations!, icon: <Bed /> },
+      { ...t.sideIcons.visaProcessing!, icon: <ScrollText /> },
+      { ...t.sideIcons.support247!, icon: <MdOutlineSupportAgent /> },
+    ],
+  };
 
   return (
-    <main className="w-full text-gray-800">
+    <main dir={getDirection(language)} className="w-full text-gray-800">
       {/* ================= HERO SECTION ================= */}
       <section className="relative flex flex-col items-center justify-center text-center text-white overflow-hidden min-h-150 md:min-h-170 pb-16">
         {/* VIDEO */}
@@ -87,18 +71,18 @@ export default function HomeMain() {
           <div className="inline-flex items-center gap-2 border border-white/30 bg-white px-4 py-2 rounded-full mb-5 text-xs sm:text-sm text-black font-medium shadow-sm">
             <Image
               src="/assets/home/partners/iata.webp"
-              alt="IATA Badge"
+              alt="IATA"
               width={20}
               height={20}
               priority
               className="h-4 w-auto object-contain"
             />
-            <span>IATA ACCREDITED • 17+ YEARS EXCELLENCE</span>
+            <span>{t.heroBadge}</span>
           </div>
 
           {/* HEADING BLOCK */}
           <div className="w-full tracking-tight">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold block whitespace-normal md:whitespace-nowrap">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold block whitespace-normal">
               {t.heroTitle}
             </h1>
 
@@ -128,7 +112,8 @@ export default function HomeMain() {
         <img
           src="/assets/bgimage/h2.webp"
           loading="lazy"
-          alt="contact section background image"
+          alt=""
+          aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover opacity-[0.18] z-0"
         />
 
@@ -173,7 +158,7 @@ export default function HomeMain() {
           </p>
 
           <Link
-            href="https://wa.me/31104857673?text=Hello,%20I%20would%20like%20to%20request%20a%20free%20quote%20for%20my%20travel%20plans."
+            href={`https://wa.me/31104857673?text=${encodeURIComponent(t.quoteMessage)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block bg-[#d4e157] hover:bg-[#d4e157] text-black px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-sm font-semibold hover:bg-lime-500 transition-colors"

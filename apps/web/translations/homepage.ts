@@ -178,7 +178,25 @@ export type BookingFormTranslation = {
   dateLocale: string;
 };
 
+export type FAQItem = {
+  question: string;
+  answer: string;
+};
+
+export type FAQTranslation = {
+  explore: string;
+  heading: string;
+  imageAlt: string;
+  items: FAQItem[];
+};
+
 export type HomepageTranslation = {
+  faq: FAQTranslation;
+  heroBadge: string;
+  visaHeadingStart: string;
+  visaHeadingHighlight: string;
+  quoteMessage: string;
+
   // HERO
   heroTitle: string;
   heroHighlight: string;
@@ -246,11 +264,15 @@ export type HomepageTranslation = {
   packageItems: Record<PackageKey, PackageContent>;
 };
 
-const baseHomepageTranslations: Record<LanguageCode, HomepageTranslation> = {
+const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "faq">> = {
   // =====================================================
   // ENGLISH
   // =====================================================
   en: {
+    heroBadge: "IATA ACCREDITED • 17+ YEARS EXCELLENCE",
+    visaHeadingStart: "Expert Visa",
+    visaHeadingHighlight: "Solutions",
+    quoteMessage: "Hello, I would like to request a free quote for my travel plans.",
     heroTitle: "Cheap Tickets Smooth Journeys",
     heroHighlight: "From Booking to Boarding",
     heroSubtitle:
@@ -610,6 +632,10 @@ const baseHomepageTranslations: Record<LanguageCode, HomepageTranslation> = {
   // DUTCH
   // =====================================================
   nl: {
+    heroBadge: "IATA GEACCREDITEERD • 17+ JAAR UITMUNTENDHEID",
+    visaHeadingStart: "Deskundige",
+    visaHeadingHighlight: "visumoplossingen",
+    quoteMessage: "Hallo, ik wil graag een gratis offerte aanvragen voor mijn reisplannen.",
     heroTitle: "Goedkope tickets, soepele reizen",
     heroHighlight: "Van boeking tot instappen",
     heroSubtitle:
@@ -968,6 +994,10 @@ const baseHomepageTranslations: Record<LanguageCode, HomepageTranslation> = {
   // GERMAN
   // =====================================================
   de: {
+    heroBadge: "IATA AKKREDITIERT • ÜBER 17 JAHRE EXZELLENZ",
+    visaHeadingStart: "Professionelle",
+    visaHeadingHighlight: "Visa-Lösungen",
+    quoteMessage: "Hallo, ich möchte ein kostenloses Angebot für meine Reisepläne anfordern.",
     heroTitle: "Günstige Tickets, reibungslose Reisen",
     heroHighlight: "Von der Buchung bis zum Boarding",
     heroSubtitle:
@@ -1329,6 +1359,10 @@ const baseHomepageTranslations: Record<LanguageCode, HomepageTranslation> = {
   // FRENCH
   // =====================================================
   fr: {
+    heroBadge: "ACCRÉDITÉ IATA • PLUS DE 17 ANS D’EXCELLENCE",
+    visaHeadingStart: "Solutions de visa",
+    visaHeadingHighlight: "expertes",
+    quoteMessage: "Bonjour, je souhaite demander un devis gratuit pour mes projets de voyage.",
     heroTitle: "Billets abordables, voyages sereins",
     heroHighlight: "De la réservation à l'embarquement",
     heroSubtitle:
@@ -1691,6 +1725,10 @@ const baseHomepageTranslations: Record<LanguageCode, HomepageTranslation> = {
   // ITALIAN
   // =====================================================
   it: {
+    heroBadge: "ACCREDITATO IATA • OLTRE 17 ANNI DI ECCELLENZA",
+    visaHeadingStart: "Soluzioni per visti",
+    visaHeadingHighlight: "professionali",
+    quoteMessage: "Buongiorno, vorrei richiedere un preventivo gratuito per i miei programmi di viaggio.",
     heroTitle: "Biglietti convenienti, viaggi senza problemi",
     heroHighlight: "Dalla prenotazione all'imbarco",
     heroSubtitle:
@@ -2052,6 +2090,10 @@ const baseHomepageTranslations: Record<LanguageCode, HomepageTranslation> = {
   // SPANISH
   // =====================================================
   es: {
+    heroBadge: "ACREDITADO POR IATA • MÁS DE 17 AÑOS DE EXCELENCIA",
+    visaHeadingStart: "Soluciones de visado",
+    visaHeadingHighlight: "profesionales",
+    quoteMessage: "Hola, me gustaría solicitar un presupuesto gratuito para mis planes de viaje.",
     heroTitle: "Billetes económicos, viajes tranquilos",
     heroHighlight: "Desde la reserva hasta el embarque",
     heroSubtitle:
@@ -2413,6 +2455,10 @@ const baseHomepageTranslations: Record<LanguageCode, HomepageTranslation> = {
   // ARABIC
   // =====================================================
   ar: {
+    heroBadge: "معتمد من IATA • أكثر من 17 عامًا من التميز",
+    visaHeadingStart: "حلول تأشيرات",
+    visaHeadingHighlight: "احترافية",
+    quoteMessage: "مرحبًا، أود طلب عرض سعر مجاني لخطط سفري.",
     heroTitle: "تذاكر بأسعار مناسبة ورحلات سلسة",
     heroHighlight: "من الحجز إلى الصعود للطائرة",
     heroSubtitle:
@@ -2762,6 +2808,10 @@ const baseHomepageTranslations: Record<LanguageCode, HomepageTranslation> = {
   // URDU
   // =====================================================
   ur: {
+    heroBadge: "IATA منظور شدہ • 17 سال سے زائد بہترین خدمات",
+    visaHeadingStart: "ماہرانہ ویزا",
+    visaHeadingHighlight: "حل",
+    quoteMessage: "السلام علیکم، میں اپنے سفری منصوبوں کے لیے مفت کوٹیشن حاصل کرنا چاہتا ہوں۔",
     heroTitle: "سستے ٹکٹس، آرام دہ سفر",
     heroHighlight: "بکنگ سے بورڈنگ تک",
     heroSubtitle:
@@ -3108,6 +3158,98 @@ const baseHomepageTranslations: Record<LanguageCode, HomepageTranslation> = {
   },
 };
 
+
+const faqTranslations: Record<LanguageCode, FAQTranslation> = {
+  en: {
+    explore: "Let's Explore!",
+    heading: "Frequently asked questions",
+    imageAlt: "Frequently asked question",
+    items: [
+      { question: "Do you apply for an Umrah visa or a tourist visa?", answer: "We apply for a tourist visa. It offers the same benefits and more. A tourist visa is valid for one year and is usually cheaper, easier, and faster to obtain." },
+      { question: "Can we book only flights, hotels, or visa services?", answer: "Yes, you can. We also offer these services separately, but we recommend booking everything together with us for the full experience and to ensure everything is well organized." },
+      { question: "Can you assist with visa rejections or issues?", answer: "Unfortunately, we are not the final decision-making authority and only handle the visa application process. If your visa is rejected or placed under review, we can only advise you to contact the embassy for further assistance." },
+      { question: "How long does it take to get a KSA (Kingdom of Saudi Arabia) visa?", answer: "We require 3 working days to process the visa application, and approval usually takes 1 additional day." },
+    ],
+  },
+  nl: {
+    explore: "Laten we ontdekken!",
+    heading: "Veelgestelde vragen",
+    imageAlt: "Veelgestelde vraag",
+    items: [
+      { question: "Vraagt u een Umrah-visum of een toeristenvisum aan?", answer: "Wij vragen een toeristenvisum aan. Dit biedt dezelfde voordelen en meer. Een toeristenvisum is één jaar geldig en is meestal goedkoper, eenvoudiger en sneller te verkrijgen." },
+      { question: "Kunnen we alleen vluchten, hotels of visadiensten boeken?", answer: "Ja, dat kan. We bieden deze diensten ook afzonderlijk aan, maar we raden aan alles bij ons samen te boeken voor de volledige ervaring en om ervoor te zorgen dat alles goed georganiseerd is." },
+      { question: "Kunnen jullie helpen bij visumafwijzingen of problemen?", answer: "Helaas zijn wij niet de uiteindelijke beslissingsinstantie en verzorgen wij alleen het visumaanvraagproces. Als uw visum wordt afgewezen of ter beoordeling wordt geplaatst, kunnen wij u alleen adviseren contact op te nemen met de ambassade." },
+      { question: "Hoe lang duurt het om een KSA-visum (Koninkrijk Saoedi-Arabië) te krijgen?", answer: "Wij hebben 3 werkdagen nodig om de visumaanvraag te verwerken. De goedkeuring duurt meestal nog 1 extra dag." },
+    ],
+  },
+  de: {
+    explore: "Lassen Sie uns entdecken!",
+    heading: "Häufig gestellte Fragen",
+    imageAlt: "Häufig gestellte Frage",
+    items: [
+      { question: "Beantragen Sie ein Umrah-Visum oder ein Touristenvisum?", answer: "Wir beantragen ein Touristenvisum. Es bietet die gleichen und weitere Vorteile. Ein Touristenvisum ist ein Jahr gültig und in der Regel günstiger, einfacher und schneller zu erhalten." },
+      { question: "Können wir nur Flüge, Hotels oder Visa-Dienstleistungen buchen?", answer: "Ja, das können Sie. Wir bieten diese Dienstleistungen auch separat an, empfehlen jedoch, alles gemeinsam bei uns zu buchen, damit die gesamte Reise gut organisiert ist." },
+      { question: "Können Sie bei Visumablehnungen oder Problemen helfen?", answer: "Leider sind wir nicht die endgültige Entscheidungsinstanz und bearbeiten lediglich den Visumantragsprozess. Wenn Ihr Visum abgelehnt oder zur Prüfung zurückgestellt wird, können wir Sie nur an die Botschaft verweisen." },
+      { question: "Wie lange dauert es, ein KSA-Visum (Königreich Saudi-Arabien) zu erhalten?", answer: "Wir benötigen 3 Werktage für die Bearbeitung des Visumantrags. Die Genehmigung dauert normalerweise einen weiteren Tag." },
+    ],
+  },
+  fr: {
+    explore: "Explorons !",
+    heading: "Questions fréquemment posées",
+    imageAlt: "Question fréquemment posée",
+    items: [
+      { question: "Demandez-vous un visa Omra ou un visa touristique ?", answer: "Nous demandons un visa touristique. Il offre les mêmes avantages et davantage. Un visa touristique est valable un an et est généralement moins cher, plus simple et plus rapide à obtenir." },
+      { question: "Pouvons-nous réserver uniquement des vols, des hôtels ou des services de visa ?", answer: "Oui. Nous proposons également ces services séparément, mais nous recommandons de tout réserver avec nous afin de bénéficier d'une expérience complète et d'une organisation optimale." },
+      { question: "Pouvez-vous aider en cas de refus ou de problème de visa ?", answer: "Malheureusement, nous ne sommes pas l'autorité décisionnelle finale et nous nous occupons uniquement du processus de demande de visa. En cas de refus ou d'examen de votre demande, nous vous conseillons de contacter l'ambassade." },
+      { question: "Combien de temps faut-il pour obtenir un visa KSA (Royaume d'Arabie saoudite) ?", answer: "Nous avons besoin de 3 jours ouvrables pour traiter la demande de visa. L'approbation prend généralement un jour supplémentaire." },
+    ],
+  },
+  it: {
+    explore: "Esploriamo!",
+    heading: "Domande frequenti",
+    imageAlt: "Domanda frequente",
+    items: [
+      { question: "Richiedete un visto Umrah o un visto turistico?", answer: "Richiediamo un visto turistico. Offre gli stessi vantaggi e anche di più. Il visto turistico è valido per un anno ed è generalmente più economico, semplice e veloce da ottenere." },
+      { question: "Possiamo prenotare solo voli, hotel o servizi per il visto?", answer: "Sì. Offriamo anche questi servizi separatamente, ma consigliamo di prenotare tutto con noi per un'esperienza completa e per garantire che tutto sia ben organizzato." },
+      { question: "Potete assistere in caso di rifiuto o problemi con il visto?", answer: "Purtroppo non siamo l'autorità decisionale finale e gestiamo solo il processo di richiesta del visto. In caso di rifiuto o revisione, possiamo solo consigliarvi di contattare l'ambasciata." },
+      { question: "Quanto tempo occorre per ottenere un visto KSA (Regno dell'Arabia Saudita)?", answer: "Sono necessari 3 giorni lavorativi per elaborare la richiesta. L'approvazione richiede generalmente un ulteriore giorno." },
+    ],
+  },
+  es: {
+    explore: "¡Exploremos!",
+    heading: "Preguntas frecuentes",
+    imageAlt: "Pregunta frecuente",
+    items: [
+      { question: "¿Solicitan un visado Umrah o un visado turístico?", answer: "Solicitamos un visado turístico. Ofrece los mismos beneficios y más. El visado turístico es válido durante un año y normalmente es más económico, sencillo y rápido de obtener." },
+      { question: "¿Podemos reservar únicamente vuelos, hoteles o servicios de visado?", answer: "Sí. También ofrecemos estos servicios por separado, pero recomendamos reservar todo con nosotros para disfrutar de una experiencia completa y garantizar que todo esté bien organizado." },
+      { question: "¿Pueden ayudar con rechazos o problemas de visado?", answer: "Lamentablemente, no somos la autoridad que toma la decisión final y solo gestionamos el proceso de solicitud. Si su visado es rechazado o queda en revisión, podemos recomendarle que contacte con la embajada." },
+      { question: "¿Cuánto tiempo se tarda en obtener un visado KSA (Reino de Arabia Saudita)?", answer: "Necesitamos 3 días laborables para procesar la solicitud. La aprobación normalmente tarda 1 día adicional." },
+    ],
+  },
+  ar: {
+    explore: "لنستكشف!",
+    heading: "الأسئلة الشائعة",
+    imageAlt: "سؤال شائع",
+    items: [
+      { question: "هل تتقدمون بطلب للحصول على تأشيرة عمرة أم تأشيرة سياحية؟", answer: "نتقدم بطلب للحصول على تأشيرة سياحية. وهي توفر نفس المزايا وأكثر. التأشيرة السياحية صالحة لمدة عام، وعادةً ما تكون أرخص وأسهل وأسرع في الحصول عليها." },
+      { question: "هل يمكننا حجز الرحلات الجوية أو الفنادق أو خدمات التأشيرة فقط؟", answer: "نعم، يمكنكم ذلك. نقدم هذه الخدمات بشكل منفصل أيضًا، ولكننا نوصي بحجز كل شيء معنا للحصول على تجربة متكاملة وضمان تنظيم الرحلة بشكل جيد." },
+      { question: "هل يمكنكم المساعدة في حالات رفض التأشيرة أو وجود مشاكل؟", answer: "للأسف، لسنا الجهة النهائية لاتخاذ القرار ونقوم فقط بإدارة إجراءات طلب التأشيرة. إذا تم رفض التأشيرة أو وضعها قيد المراجعة، يمكننا فقط نصحكم بالتواصل مع السفارة." },
+      { question: "كم يستغرق الحصول على تأشيرة المملكة العربية السعودية؟", answer: "نحتاج إلى 3 أيام عمل لمعالجة طلب التأشيرة، وعادةً ما تستغرق الموافقة يومًا إضافيًا." },
+    ],
+  },
+  ur: {
+    explore: "آئیے دریافت کریں!",
+    heading: "اکثر پوچھے جانے والے سوالات",
+    imageAlt: "اکثر پوچھا جانے والا سوال",
+    items: [
+      { question: "کیا آپ عمرہ ویزا یا ٹورسٹ ویزا کے لیے درخواست دیتے ہیں؟", answer: "ہم ٹورسٹ ویزا کے لیے درخواست دیتے ہیں۔ یہ وہی فوائد اور اس سے بھی زیادہ سہولیات فراہم کرتا ہے۔ ٹورسٹ ویزا ایک سال کے لیے کارآمد ہوتا ہے اور عام طور پر سستا، آسان اور جلدی حاصل ہو جاتا ہے۔" },
+      { question: "کیا ہم صرف فلائٹس، ہوٹل یا ویزا سروسز بک کر سکتے ہیں؟", answer: "جی ہاں، بالکل۔ ہم یہ سروسز الگ سے بھی فراہم کرتے ہیں، لیکن مکمل تجربے اور بہترین انتظام کے لیے ہم تجویز کرتے ہیں کہ تمام سروسز ہمارے ساتھ بک کریں۔" },
+      { question: "کیا آپ ویزا مسترد ہونے یا کسی مسئلے کی صورت میں مدد کر سکتے ہیں؟", answer: "بدقسمتی سے ہم حتمی فیصلہ کرنے والے ادارے نہیں ہیں اور صرف ویزا درخواست کے عمل کو سنبھالتے ہیں۔ اگر ویزا مسترد ہو جائے یا زیرِ جائزہ ہو تو ہم صرف سفارت خانے سے رابطہ کرنے کا مشورہ دے سکتے ہیں۔" },
+      { question: "KSA (مملکت سعودی عرب) کا ویزا حاصل کرنے میں کتنا وقت لگتا ہے؟", answer: "ویزا درخواست پر کارروائی کے لیے ہمیں 3 کاروباری دن درکار ہوتے ہیں، جبکہ منظوری میں عموماً مزید 1 دن لگتا ہے۔" },
+    ],
+  },
+};
+
 // =======================================================
 // LOCALE LOOKUP
 // The components read homepageTranslations[language] directly, so regional
@@ -3142,7 +3284,7 @@ const buildLocaleLookup = (): Record<string, HomepageTranslation> => {
   const lookup: Record<string, HomepageTranslation> = {};
 
   (Object.keys(baseHomepageTranslations) as LanguageCode[]).forEach((code) => {
-    const value = baseHomepageTranslations[code];
+    const value = homepageWithFaqs[code];
 
     [code, ...LOCALE_ALIASES[code]].forEach((variant) => {
       const underscored = variant.replace(/-/g, "_");
@@ -3158,10 +3300,42 @@ const buildLocaleLookup = (): Record<string, HomepageTranslation> => {
   return lookup;
 };
 
+// Fill missing nested labels without modifying either source dictionary.
+function mergeTranslation<T>(fallback: T, selected: unknown): T {
+  if (typeof fallback === "string") {
+    return (typeof selected === "string" && selected.trim() ? selected : fallback) as T;
+  }
+  if (Array.isArray(fallback)) {
+    return (Array.isArray(selected) && selected.length ? selected : fallback) as T;
+  }
+  if (fallback && typeof fallback === "object") {
+    const source = selected && typeof selected === "object" && !Array.isArray(selected)
+      ? selected as Record<string, unknown>
+      : {};
+    const result: Record<string, unknown> = { ...source };
+    for (const [key, value] of Object.entries(fallback)) {
+      result[key] = mergeTranslation(value, source[key]);
+    }
+    return result as T;
+  }
+  return (selected ?? fallback) as T;
+}
+
+const homepageWithFaqs = (Object.keys(baseHomepageTranslations) as LanguageCode[]).reduce(
+  (acc, code) => {
+    acc[code] = {
+      ...mergeTranslation(baseHomepageTranslations.en, baseHomepageTranslations[code]),
+      faq: mergeTranslation(faqTranslations.en, faqTranslations[code]),
+    };
+    return acc;
+  },
+  {} as Record<LanguageCode, HomepageTranslation>
+);
+
 export const homepageTranslations: Record<LanguageCode, HomepageTranslation> &
   Record<string, HomepageTranslation> = {
   ...buildLocaleLookup(),
-  ...baseHomepageTranslations,
+  ...homepageWithFaqs,
 };
 
 // =======================================================
@@ -3171,15 +3345,14 @@ export const homepageTranslations: Record<LanguageCode, HomepageTranslation> &
 export const getHomepageTranslation = (
   language: string | undefined
 ): HomepageTranslation => {
-  if (!language) return baseHomepageTranslations.en;
+  const normalized = typeof language === "string" ? language.trim().toLowerCase() : "";
+  // split()[0] is typed as possibly undefined; default to "" (English fallback).
+  const short = normalized.split(/[-_]/)[0] ?? "";
+  const own = (key: string) => Object.prototype.hasOwnProperty.call(homepageTranslations, key);
 
-  const direct = homepageTranslations[language];
-  if (direct) return direct;
-
-  // "nl-NL-x-something" / "nl_BE" / unknown region -> "nl"
-  const short = language.toLowerCase().split(/[-_]/)[0] as LanguageCode;
-
-  return baseHomepageTranslations[short] || baseHomepageTranslations.en;
+  if (normalized && own(normalized)) return homepageTranslations[normalized]!;
+  if (short && own(short)) return homepageTranslations[short]!;
+  return homepageTranslations.en;
 };
 
 /**

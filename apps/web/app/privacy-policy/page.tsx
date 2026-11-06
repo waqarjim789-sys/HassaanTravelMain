@@ -1,11 +1,10 @@
-import CommonHeader from "@/components/ui/CommonHeader";
+import LegalPageShell from "@/components/ui/LegalPageShell";
 import PrivacyPolicy from "@/components/ui/privacy-policy";
 
 export default function PrivacyPolicyPage() {
   return (
-    <main className="w-full text-gray-800">
-      <CommonHeader heading="Privacy Policy" />
+    <LegalPageShell page="privacy" contentLang="en">
       <PrivacyPolicy />
-    </main>
+    </LegalPageShell>
   );
 }

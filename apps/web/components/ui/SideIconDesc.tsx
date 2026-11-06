@@ -2,10 +2,8 @@
 
 import React from "react";
 import { useLanguage } from "@/components/LanguageProvider";
-import {
-  homepageTranslations,
-  type LanguageCode,
-} from "@/translations/homepage";
+import { getDirection } from "@/i18n";
+import { getHomepageTranslation, homepageTranslations } from "@/translations/homepage";
 
 interface Props {
   icon: React.ReactNode;
@@ -41,9 +39,6 @@ interface SideIconDescProps {
   };
 }
 
-// Languages that read right to left
-const RTL_LANGUAGES = ["ar", "ur"];
-
 /** "  Expert   Visa Solutions " -> "expert visa solutions" */
 const normalize = (value: string) =>
   value.trim().toLowerCase().replace(/\s+/g, " ");
@@ -74,17 +69,10 @@ const ENGLISH_INDEX = buildEnglishIndex();
 const SideIconDesc = ({ data }: SideIconDescProps) => {
   const { language } = useLanguage();
 
-  const t =
-    homepageTranslations[language as LanguageCode] || homepageTranslations.en;
-
+  // Shared helper normalizes locale codes and applies English fallback for
+  // missing or incomplete translations.
+  const t = getHomepageTranslation(language);
   const en = homepageTranslations.en;
-
-  const normalizedLanguage =
-  (language || "en")
-    .toLowerCase()
-    .split(/[-_]/)[0] || "en";
-
-const isRtl = RTL_LANGUAGES.includes(normalizedLanguage);
 
   // Heading: explicit key -> English wording match -> whatever the parent passed
   const sectionKey =
@@ -118,7 +106,7 @@ const isRtl = RTL_LANGUAGES.includes(normalizedLanguage);
   return (
     // Background image aur style tag hata diya hai, ab yeh clean background hai
     <section
-      dir={isRtl ? "rtl" : "ltr"}
+      dir={getDirection(language)}
       className="py-12 sm:py-20 px-4 sm:px-8 md:px-16 relative container mx-auto"
     >
       <div className="text-center">

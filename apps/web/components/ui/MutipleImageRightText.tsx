@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import type { ReactNode } from "react";
 import { Plane, Binoculars, Phone } from "lucide-react";
 import { FaStackExchange } from "react-icons/fa";
 import { useLanguage } from "@/components/LanguageProvider";
-import {
-  homepageTranslations,
-  type LanguageCode,
-} from "@/translations/homepage";
+import { getDirection } from "@/i18n";
+import { getHomepageTranslation } from "@/translations/homepage";
 
 export default function MutipleImageRightText({
   imageData,
@@ -17,9 +16,9 @@ export default function MutipleImageRightText({
 }) {
   const { language } = useLanguage();
 
-  const t =
-    homepageTranslations[language as LanguageCode] || homepageTranslations.en;
-
+  // Use the shared helper so unsupported locales and missing translations
+  // safely fall back to the configured English homepage translations.
+  const t = getHomepageTranslation(language);
   const wt = t.whyTrusted;
 
   const features = [
@@ -30,20 +29,24 @@ export default function MutipleImageRightText({
   ];
 
   return (
-    <section className="relative w-full py-12 sm:py-20 overflow-hidden">
-      {/* Background Image */}
+    <section
+      dir={getDirection(language)}
+      className="relative w-full py-12 sm:py-20 overflow-hidden"
+    >
+      {/* Decorative background image */}
       <Image
         src="/assets/bgimage/h2.webp"
         loading="lazy"
         alt=""
         fill
+        aria-hidden="true"
         className="absolute inset-0 w-full h-full object-cover opacity-[0.18]"
       />
 
       {/* CONTENT */}
       <div className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 px-4">
         {/* LEFT IMAGES CONTAINER */}
-        {/* Note: Added a minimum height so absolute positioned images don't collapse the layout */}
+        {/* Minimum height keeps the absolutely positioned images in the layout. */}
         <div className="relative w-full min-h-[450px]">
           <Image
             src={imageData[0] || ""}
@@ -87,7 +90,7 @@ export default function MutipleImageRightText({
         </div>
 
         {/* RIGHT TEXT */}
-        <div className="flex flex-col justify-center">
+        <div className="flex min-w-0 flex-col justify-center text-start">
           <h2 className="text-4xl md:text-3xl font-extrabold leading-tight text-black">
             {wt.title}
           </h2>
@@ -102,7 +105,7 @@ export default function MutipleImageRightText({
             ))}
           </div>
 
-          {/* FIXED LINK: Styled the Link directly instead of nesting a button */}
+          {/* Keep the existing contact route and CTA styling. */}
           <div className="mt-10">
             <Link
               href="/contact-us"
@@ -117,12 +120,14 @@ export default function MutipleImageRightText({
   );
 }
 
-/* 🔥 Small reusable sub-component */
-function Feature({ icon, text }: { icon: React.ReactNode; text: string }) {
+/* Small reusable feature row. */
+function Feature({ icon, text }: { icon: ReactNode; text: string }) {
   return (
     <div className="flex items-start gap-4">
-      {/* flex-shrink-0 prevents the icon container from squeezing on smaller screens */}
-      <div className="w-8 h-8 rounded-lg bg-[#0F91D5] flex items-center justify-center text-white flex-shrink-0">
+      <div
+        aria-hidden="true"
+        className="w-8 h-8 rounded-lg bg-[#0F91D5] flex items-center justify-center text-white flex-shrink-0"
+      >
         {icon}
       </div>
       <p className="text-gray-700 leading-relaxed pt-0.5">{text}</p>

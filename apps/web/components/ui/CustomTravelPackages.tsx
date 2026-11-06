@@ -1,21 +1,43 @@
 "use client";
-import { JSX, useState } from "react";
+
+import {
+  JSX,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import { FaHotel, FaPlaneArrival, FaUserTie, FaUtensils } from "react-icons/fa";
 import { FaUsers, FaHeart, FaUser, FaUserFriends } from "react-icons/fa";
+import { useLanguage } from "@/components/LanguageProvider";
+import { getDirection } from "@/i18n";
+import { interpolate } from "@/lib/createTranslator";
+import {
+  getCustomPackagesTranslation,
+  type DurationKey,
+  type PreferenceKey,
+  type TimeSpanKey,
+  type TravelTypeKey,
+} from "@/translations/customPackages";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type CountryCode = "SA" | "AE" | "TR" | "EG" | "MA" | "TH" | "FR" | "IT" | "GB" | "US";
 type SubmitStatus = "idle" | "loading" | "success" | "error";
+type TravelerKey = "adults" | "children" | "infants";
 
+/** `name` stays English: it is what the office receives by email. */
 interface Country { code: CountryCode; name: string }
-interface TravelTypeOption { id: string; label: string; icon: JSX.Element }
-interface DurationOption { id: string; label: string }
-interface PreferenceOption { id: string; label: string; icon: JSX.Element }
+interface TravelTypeOption { id: TravelTypeKey; icon: JSX.Element }
+interface PreferenceOption { id: PreferenceKey; icon: JSX.Element }
 interface TravelerRowConfig {
+  id: TravelerKey;
   label: string;
   value: number;
-  setter: React.Dispatch<React.SetStateAction<number>>;
+  setter: Dispatch<SetStateAction<number>>;
   min: number;
   max?: number;
   helperText?: string;
@@ -24,7 +46,7 @@ interface TravelerRowConfig {
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface CustomTravelPackagesProps {
-  mode?: 'umrah' | 'packages';
+  mode?: "umrah" | "packages";
 }
 
 // ─── Static Data ──────────────────────────────────────────────────────────────
@@ -42,6 +64,7 @@ const countries: Country[] = [
   { code: "US", name: "United States" },
 ];
 
+// Airport names keep their IATA codes and stay as they are.
 const airportsByCountry: Record<CountryCode, string[]> = {
   SA: ["Jeddah (JED)", "Riyadh (RUH)", "Dammam (DMM)", "Medina (MED)"],
   AE: ["Dubai (DXB)", "Abu Dhabi (AUH)", "Sharjah (SHJ)"],
@@ -55,28 +78,23 @@ const airportsByCountry: Record<CountryCode, string[]> = {
   US: ["New York JFK (JFK)", "Los Angeles (LAX)", "Chicago (ORD)"],
 };
 
-const timeSpans: string[] = ["Day", "Night"];
+// Values stay English for the office email; labels come from translations.
+const timeSpans: TimeSpanKey[] = ["Day", "Night"];
 
 const travelTypes: TravelTypeOption[] = [
-  { id: "family",  label: "Family",  icon: <FaUsers /> },
-  { id: "couple",  label: "Couple",  icon: <FaHeart /> },
-  { id: "solo",    label: "Solo",    icon: <FaUser /> },
-  { id: "friends", label: "Friends", icon: <FaUserFriends /> },
+  { id: "family", icon: <FaUsers /> },
+  { id: "couple", icon: <FaHeart /> },
+  { id: "solo", icon: <FaUser /> },
+  { id: "friends", icon: <FaUserFriends /> },
 ];
 
-const durations: DurationOption[] = [
-  { id: "3-5",    label: "3–5 Days" },
-  { id: "7",      label: "7 Days" },
-  { id: "10",     label: "10 Days" },
-  { id: "14",     label: "14 Days" },
-  { id: "custom", label: "Custom" },
-];
+const durations: DurationKey[] = ["3-5", "7", "10", "14", "custom"];
 
 const preferences: PreferenceOption[] = [
-  { id: "hotel",   label: "Hotel Accommodation", icon: <FaHotel /> },
-  { id: "airport", label: "Airport Pick & Drop",  icon: <FaPlaneArrival /> },
-  { id: "guide",   label: "Tour Guide",           icon: <FaUserTie /> },
-  { id: "meals",   label: "Meals Included",       icon: <FaUtensils /> },
+  { id: "hotel", icon: <FaHotel /> },
+  { id: "airport", icon: <FaPlaneArrival /> },
+  { id: "guide", icon: <FaUserTie /> },
+  { id: "meals", icon: <FaUtensils /> },
 ];
 
 // Simple email & phone validators
@@ -88,8 +106,25 @@ const isValidPhone = (value: string): boolean =>
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function CustomTravelPackages({ mode = 'packages' }: CustomTravelPackagesProps): JSX.Element {
-  const isUmrah = mode === 'umrah';
+export default function CustomTravelPackages({ mode = "packages" }: CustomTravelPackagesProps): JSX.Element {
+  const isUmrah = mode === "umrah";
+
+  const { language } = useLanguage();
+  const t = getCustomPackagesTranslation(language);
+  const direction = getDirection(language);
+  const fieldId = useId();
+
+  // Localized country names for display only; falls back to the English name.
+  const regionNames = useMemo(() => {
+    try {
+      return new Intl.DisplayNames([language], { type: "region", fallback: "none" });
+    } catch {
+      return null;
+    }
+  }, [language]);
+
+  const getCountryLabel = (item: Country): string =>
+    regionNames?.of(item.code) || item.name;
 
   // ─── State ─────────────────────────────────────────────────────────────────
 
@@ -99,13 +134,13 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
   const [country, setCountry]               = useState<CountryCode>("SA");
   const [airport, setAirport]               = useState<string>("");
   const [timeSpan, setTimeSpan]             = useState<string>("");
-  const [travelType, setTravelType]         = useState<string>("couple");
-  const [duration, setDuration]             = useState<string>("10");
+  const [travelType, setTravelType]         = useState<TravelTypeKey>("couple");
+  const [duration, setDuration]             = useState<DurationKey>("10");
   const [customDays, setCustomDays]         = useState<string>("");
   const [adults, setAdults]                 = useState<number>(2);
   const [children, setChildren]             = useState<number>(0);
   const [infants, setInfants]               = useState<number>(0);
-  const [selectedPrefs, setSelectedPrefs]   = useState<string[]>(["airport"]);
+  const [selectedPrefs, setSelectedPrefs]   = useState<PreferenceKey[]>(["airport"]);
   const [specialRequests, setSpecialRequests] = useState<string>("");
   const [status, setStatus]                 = useState<SubmitStatus>("idle");
   const [touched, setTouched]               = useState<{ email: boolean; phone: boolean }>({
@@ -113,7 +148,15 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
     phone: false,
   });
 
-  const togglePref = (id: string): void => {
+  // Clear the "success" reset timer if the component unmounts.
+  const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    return () => {
+      if (resetTimer.current !== null) clearTimeout(resetTimer.current);
+    };
+  }, []);
+
+  const togglePref = (id: PreferenceKey): void => {
     setSelectedPrefs((prev) =>
       prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
     );
@@ -122,16 +165,17 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
   // ─── Validation ────────────────────────────────────────────────────────────
 
   const emailError = touched.email && !isValidEmail(email)
-    ? (email.trim() === "" ? "Email is required" : "Enter a valid email address")
+    ? (email.trim() === "" ? t.errors.emailRequired : t.errors.emailInvalid)
     : "";
 
   const phoneError = touched.phone && !isValidPhone(phone)
-    ? (phone.trim() === "" ? "Phone number is required" : "Enter a valid phone number")
+    ? (phone.trim() === "" ? t.errors.phoneRequired : t.errors.phoneInvalid)
     : "";
 
   const isFormValid = isValidEmail(email) && isValidPhone(phone);
 
   // ─── Submit ───────────────────────────────────────────────────────────────
+  // Payload is unchanged: English values, same keys as before.
 
   const handleSubmit = async (): Promise<void> => {
     // Mark mandatory fields as touched so errors show if invalid
@@ -168,7 +212,8 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
 
       if (res.ok) {
         setStatus("success");
-        setTimeout(() => setStatus("idle"), 3000);
+        if (resetTimer.current !== null) clearTimeout(resetTimer.current);
+        resetTimer.current = setTimeout(() => setStatus("idle"), 3000);
       } else {
         setStatus("error");
       }
@@ -180,19 +225,14 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
   // ─── Traveler rows configuration ──────────────────────────────────────────
 
   const travelerRows: TravelerRowConfig[] = [
-    { label: "Adults (12+)", value: adults, setter: setAdults, min: 1 },
-    { label: "Children (2-11)", value: children, setter: setChildren, min: 0, max: 10 },
-    { label: "Infants (0-1)", value: infants, setter: setInfants, min: 0, max: 5 },
+    { id: "adults", label: t.travelers.adults, value: adults, setter: setAdults, min: 1 },
+    { id: "children", label: t.travelers.children, value: children, setter: setChildren, min: 0, max: 10 },
+    { id: "infants", label: t.travelers.infants, value: infants, setter: setInfants, min: 0, max: 5 },
   ];
 
   // ─── Derived button state ─────────────────────────────────────────────────
 
-  const buttonLabel = {
-    idle:    "Get Your Custom Quote →",
-    loading: "Sending...",
-    success: "✓ Quote Request Sent!",
-    error:   "❌ Failed — Try Again",
-  }[status];
+  const buttonLabel = t.submit[status];
 
   const buttonClass = {
     idle:    "bg-[#0F91D5] shadow-lg shadow-blue-100 hover:shadow-xl hover:scale-[1.01]",
@@ -201,50 +241,58 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
     error:   "bg-red-500 shadow-lg shadow-red-200",
   }[status];
 
+  const heading = isUmrah ? t.heading.umrah : t.heading.packages;
+  const description = isUmrah ? t.description.umrah : t.description.packages;
+
+  const ids = {
+    country: `${fieldId}-country`,
+    airport: `${fieldId}-airport`,
+    timeSpan: `${fieldId}-time-span`,
+    customDays: `${fieldId}-custom-days`,
+    specialRequests: `${fieldId}-special-requests`,
+    emailError: `${fieldId}-email-error`,
+    phoneError: `${fieldId}-phone-error`,
+  };
+
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
     <section
-  id="umrah-form"
-  className="relative w-full py-12 sm:py-20 overflow-hidden flex items-center justify-center"
->
+      id="umrah-form"
+      dir={direction}
+      className="relative w-full py-12 sm:py-20 overflow-hidden flex items-center justify-center"
+    >
       <div className="relative z-10 w-full max-w-5xl mx-auto px-4 font-sans">
 
         {/* HEADING */}
         <div className="text-center mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
-            {isUmrah ? (
-              <>Make Your <span className="text-[#0F91D5]">Umrah</span> Package</>
-            ) : (
-              <>Make Your <span className="text-[#0F91D5]">Custom</span> Travel Package</>
-            )}
+            {heading.start}
+            <span className="text-[#0F91D5]">{heading.highlight}</span>
+            {heading.end}
           </h2>
-          <p className="text-gray-700 max-w-2xl mx-auto">
-            {isUmrah ? (
-              "Build your perfect Umrah journey tailored to your preferences. Choose your destination, travel style, and let us create an unforgettable spiritual experience."
-            ) : (
-              "Build your perfect journey tailored to your preferences. Choose your destination, travel style, and let us create an unforgettable experience."
-            )}
-          </p>
+          <p className="text-gray-700 max-w-2xl mx-auto">{description}</p>
         </div>
 
         {/* FORM CARD */}
         <div className="w-full bg-white rounded-3xl shadow-2xl shadow-blue-100 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-100">
 
-            {/* ── LEFT PANEL ── */}
-            <div className="p-8 space-y-8">
+            {/* ── FIRST PANEL ── */}
+            <div className="p-8 space-y-8 min-w-0">
 
               {/* Contact Details (Mandatory) */}
-              <div className="space-y-4">
-                <label className="text-sm font-semibold text-gray-700">
-                  Contact Details <span className="text-red-500">*</span>
-                </label>
+              <div className="space-y-4" role="group" aria-label={t.contact.label}>
+                <p className="text-sm font-semibold text-gray-700">
+                  {t.contact.label} <span className="text-red-500" aria-hidden="true">*</span>
+                </p>
 
                 {/* Full Name (optional) */}
                 <input
                   type="text"
-                  placeholder="Full Name"
+                  autoComplete="name"
+                  aria-label={t.contact.fullName}
+                  placeholder={t.contact.fullName}
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   className="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-700 font-medium focus:outline-none focus:border-[#0F91D5] focus:bg-white transition-all"
@@ -254,7 +302,13 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
                 <div>
                   <input
                     type="email"
-                    placeholder="Email Address *"
+                    dir="ltr"
+                    autoComplete="email"
+                    required
+                    aria-label={t.contact.email}
+                    aria-invalid={!!emailError}
+                    aria-describedby={emailError ? ids.emailError : undefined}
+                    placeholder={t.contact.email}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
@@ -263,7 +317,9 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
                     }`}
                   />
                   {emailError && (
-                    <p className="text-xs text-red-500 mt-1">{emailError}</p>
+                    <p id={ids.emailError} role="alert" className="text-xs text-red-500 mt-1 text-start">
+                      {emailError}
+                    </p>
                   )}
                 </div>
 
@@ -271,7 +327,13 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
                 <div>
                   <input
                     type="tel"
-                    placeholder="Phone Number *"
+                    dir="ltr"
+                    autoComplete="tel"
+                    required
+                    aria-label={t.contact.phone}
+                    aria-invalid={!!phoneError}
+                    aria-describedby={phoneError ? ids.phoneError : undefined}
+                    placeholder={t.contact.phone}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     onBlur={() => setTouched((prev) => ({ ...prev, phone: true }))}
@@ -280,59 +342,67 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
                     }`}
                   />
                   {phoneError && (
-                    <p className="text-xs text-red-500 mt-1">{phoneError}</p>
+                    <p id={ids.phoneError} role="alert" className="text-xs text-red-500 mt-1 text-start">
+                      {phoneError}
+                    </p>
                   )}
                 </div>
               </div>
 
               {/* Destination Country */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">Destination Country</label>
+                <label htmlFor={ids.country} className="block text-sm font-semibold text-gray-700">
+                  {t.destination.label}
+                </label>
                 <div className="relative">
                   <select
+                    id={ids.country}
                     value={country}
-                    onChange={(e) => { 
+                    onChange={(e) => {
                       const newCountry = e.target.value as CountryCode;
                       setCountry(newCountry);
                       setAirport("");
                     }}
                     className={`w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-700 font-medium focus:outline-none focus:border-[#0F91D5] focus:bg-white transition-all appearance-none ${
-                      isUmrah ? 'cursor-not-allowed opacity-75' : ''
+                      isUmrah ? "cursor-not-allowed opacity-75" : "pe-10"
                     }`}
                     disabled={isUmrah}
                   >
                     {isUmrah ? (
-                      <option value="SA">Saudi Arabia</option>
+                      <option value="SA">{getCountryLabel(countries[0]!)}</option>
                     ) : (
                       countries.map((c) => (
-                        <option key={c.code} value={c.code}>{c.name}</option>
+                        <option key={c.code} value={c.code}>{getCountryLabel(c)}</option>
                       ))
                     )}
                   </select>
-                  
+
                   {/* Dropdown Arrow - Hidden for Umrah */}
                   {!isUmrah && (
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center px-3 text-gray-500">
+                      <svg className="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
                   )}
                 </div>
                 {isUmrah && (
-                  <p className="text-xs text-gray-500 mt-1">* Only Saudi Arabia for Umrah services</p>
+                  <p className="text-xs text-gray-500 mt-1">{t.destination.umrahOnly}</p>
                 )}
               </div>
 
               {/* Airport */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">Airport</label>
+                <label htmlFor={ids.airport} className="block text-sm font-semibold text-gray-700">
+                  {t.airport.label}
+                </label>
                 <select
+                  id={ids.airport}
                   value={airport}
                   onChange={(e) => setAirport(e.target.value)}
                   className="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-700 font-medium focus:outline-none focus:border-[#0F91D5] focus:bg-white transition-all"
                 >
-                  <option value="">Select Airport</option>
+                  <option value="">{t.airport.placeholder}</option>
                   {(airportsByCountry[country] ?? []).map((a) => (
                     <option key={a} value={a}>{a}</option>
                   ))}
@@ -341,41 +411,45 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
 
               {/* Preferred Time Span */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">Preferred Time Span</label>
+                <label htmlFor={ids.timeSpan} className="block text-sm font-semibold text-gray-700">
+                  {t.timeSpan.label}
+                </label>
                 <select
+                  id={ids.timeSpan}
                   value={timeSpan}
                   onChange={(e) => setTimeSpan(e.target.value)}
                   className="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-700 font-medium focus:outline-none focus:border-[#0F91D5] focus:bg-white transition-all"
                 >
-                  <option value="">Day/Night</option>
-                  {timeSpans.map((a) => (
-                    <option key={a} value={a}>{a}</option>
+                  <option value="">{t.timeSpan.placeholder}</option>
+                  {timeSpans.map((value) => (
+                    <option key={value} value={value}>{t.timeSpan.options[value]}</option>
                   ))}
                 </select>
               </div>
 
               {/* Travel Type */}
-              <div className="space-y-3">
-                <label className="text-sm font-semibold text-gray-700">Travel Type</label>
+              <div className="space-y-3" role="group" aria-label={t.travelType.label}>
+                <p className="text-sm font-semibold text-gray-700">{t.travelType.label}</p>
                 <div className="grid grid-cols-4 gap-3">
-                  {travelTypes.map((t) => {
-                    const active = travelType === t.id;
+                  {travelTypes.map((option) => {
+                    const active = travelType === option.id;
                     return (
                       <button
-                        key={t.id}
+                        key={option.id}
                         type="button"
-                        onClick={() => setTravelType(t.id)}
-                        className={`flex flex-col items-center justify-center gap-2 py-4 rounded-2xl border-2 text-sm font-semibold transition-all
+                        aria-pressed={active}
+                        onClick={() => setTravelType(option.id)}
+                        className={`flex flex-col items-center justify-center gap-2 py-4 rounded-2xl border-2 text-sm font-semibold transition-all min-w-0
                           ${active
                             ? "bg-[#0F91D5] border-[#0F91D5] text-white shadow-lg scale-105"
                             : "bg-white border-gray-200 text-gray-600 hover:border-[#0F91D5] hover:bg-blue-50"
                           }`}
                       >
-                        <span className={`text-2xl ${active ? "text-white" : "text-[#0F91D5]"}`}>
-                          {t.icon}
+                        <span aria-hidden="true" className={`text-2xl ${active ? "text-white" : "text-[#0F91D5]"}`}>
+                          {option.icon}
                         </span>
-                        <span className={`text-xs ${active ? "text-white" : "text-gray-600"}`}>
-                          {t.label}
+                        <span className={`text-xs text-center break-words ${active ? "text-white" : "text-gray-600"}`}>
+                          {t.travelType.options[option.id]}
                         </span>
                       </button>
                     );
@@ -384,29 +458,32 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
               </div>
 
               {/* Duration */}
-              <div className="space-y-3">
-                <label className="text-sm font-semibold text-gray-700">Duration</label>
+              <div className="space-y-3" role="group" aria-label={t.duration.label}>
+                <p className="text-sm font-semibold text-gray-700">{t.duration.label}</p>
                 <div className="flex flex-wrap gap-2">
-                  {durations.map((d) => (
+                  {durations.map((id) => (
                     <button
-                      key={d.id}
+                      key={id}
                       type="button"
-                      onClick={() => setDuration(d.id)}
+                      aria-pressed={duration === id}
+                      onClick={() => setDuration(id)}
                       className={`px-4 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all ${
-                        duration === d.id
+                        duration === id
                           ? "bg-[#0F91D5] border-[#0F91D5] text-white shadow-md"
                           : "bg-white border-gray-200 text-gray-600 hover:border-[#0F91D5]"
                       }`}
                     >
-                      {d.label}
+                      {t.duration.options[id]}
                     </button>
                   ))}
                 </div>
                 {duration === "custom" && (
                   <input
+                    id={ids.customDays}
                     type="number"
                     min={1}
-                    placeholder="Enter number of days"
+                    aria-label={t.duration.customPlaceholder}
+                    placeholder={t.duration.customPlaceholder}
                     value={customDays}
                     onChange={(e) => setCustomDays(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl border-2 border-[#0F91D5] bg-blue-50 text-gray-700 font-medium focus:outline-none transition-all"
@@ -415,31 +492,33 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
               </div>
             </div>
 
-            {/* ── RIGHT PANEL ── */}
-            <div className="p-8 space-y-8">
+            {/* ── SECOND PANEL ── */}
+            <div className="p-8 space-y-8 min-w-0">
 
               {/* Number of Travelers */}
-              <div className="space-y-3">
-                <label className="text-sm font-semibold text-gray-700">Number of Travelers</label>
+              <div className="space-y-3" role="group" aria-label={t.travelers.label}>
+                <p className="text-sm font-semibold text-gray-700">{t.travelers.label}</p>
                 <div className="space-y-3">
-                  {travelerRows.map(({ label, value, setter, min, max, helperText }) => (
-                    <div key={label} className="flex items-center justify-between bg-gray-50 rounded-2xl px-5 py-4">
-                      <div>
+                  {travelerRows.map(({ id, label, value, setter, min, max, helperText }) => (
+                    <div key={id} className="flex items-center justify-between gap-3 bg-gray-50 rounded-2xl px-5 py-4">
+                      <div className="min-w-0">
                         <p className="font-semibold text-gray-800 text-sm">{label}</p>
                         {helperText && (
                           <p className="text-xs text-gray-500">{helperText}</p>
                         )}
                       </div>
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-4 shrink-0">
                         <button
                           type="button"
                           onClick={() => setter((prev) => Math.max(min, prev - 1))}
                           className="w-10 h-10 rounded-full border-2 border-[#0F91D5] text-[#0F91D5] text-xl font-bold flex items-center justify-center hover:bg-[#0F91D5] hover:text-white transition-all"
-                          aria-label={`Decrease ${label}`}
+                          aria-label={interpolate(t.travelers.decrease, { label })}
                         >
                           −
                         </button>
-                        <span className="w-6 text-center text-lg font-bold text-gray-800">{value}</span>
+                        <span aria-live="polite" className="w-6 text-center text-lg font-bold text-gray-800">
+                          {value}
+                        </span>
                         <button
                           type="button"
                           onClick={() => {
@@ -451,7 +530,7 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
                               ? "border-gray-300 text-gray-300 cursor-not-allowed"
                               : "border-[#0F91D5] text-[#0F91D5] hover:bg-[#0F91D5] hover:text-white"
                           }`}
-                          aria-label={`Increase ${label}`}
+                          aria-label={interpolate(t.travelers.increase, { label })}
                           disabled={max ? value >= max : false}
                         >
                           +
@@ -463,8 +542,8 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
               </div>
 
               {/* Additional Preferences */}
-              <div className="space-y-3">
-                <label className="text-sm font-semibold text-gray-700">Additional Preferences</label>
+              <div className="space-y-3" role="group" aria-label={t.preferences.label}>
+                <p className="text-sm font-semibold text-gray-700">{t.preferences.label}</p>
                 <div className="space-y-2.5">
                   {preferences.map((pref) => {
                     const active = selectedPrefs.includes(pref.id);
@@ -472,14 +551,15 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
                       <button
                         key={pref.id}
                         type="button"
+                        aria-pressed={active}
                         onClick={() => togglePref(pref.id)}
-                        className={`w-full flex items-center gap-4 px-4 py-4 rounded-2xl border-2 text-left transition-all ${
+                        className={`w-full flex items-center gap-4 px-4 py-4 rounded-2xl border-2 text-start transition-all ${
                           active
                             ? "bg-blue-50 border-[#0F91D5] shadow-sm"
                             : "bg-gray-50 border-gray-200 hover:border-blue-200"
                         }`}
                       >
-                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${
+                        <div aria-hidden="true" className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${
                           active ? "bg-[#0F91D5] border-[#0F91D5]" : "border-gray-300"
                         }`}>
                           {active && (
@@ -488,9 +568,9 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
                             </svg>
                           )}
                         </div>
-                        <span className="text-xl text-[#0F91D5]">{pref.icon}</span>
-                        <span className={`text-sm font-semibold ${active ? "text-blue-900" : "text-gray-700"}`}>
-                          {pref.label}
+                        <span aria-hidden="true" className="text-xl text-[#0F91D5] shrink-0">{pref.icon}</span>
+                        <span className={`text-sm font-semibold min-w-0 ${active ? "text-blue-900" : "text-gray-700"}`}>
+                          {t.preferences.options[pref.id]}
                         </span>
                       </button>
                     );
@@ -500,11 +580,14 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
 
               {/* Special Requests */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-700">Special Requests</label>
+                <label htmlFor={ids.specialRequests} className="block text-sm font-semibold text-gray-700">
+                  {t.specialRequests.label}
+                </label>
                 <textarea
+                  id={ids.specialRequests}
                   value={specialRequests}
                   onChange={(e) => setSpecialRequests(e.target.value)}
-                  placeholder="Any special requirements or requests..."
+                  placeholder={t.specialRequests.placeholder}
                   rows={3}
                   className="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-700 font-medium focus:outline-none focus:border-[#0F91D5] focus:bg-white transition-all resize-none"
                 />
@@ -517,7 +600,9 @@ export default function CustomTravelPackages({ mode = 'packages' }: CustomTravel
                 disabled={status === "loading"}
                 className={`w-full py-4 rounded-2xl font-bold text-white text-base transition-all duration-300 ${buttonClass}`}
               >
-                {buttonLabel}
+                <span role={status === "success" || status === "error" ? "status" : undefined}>
+                  {buttonLabel}
+                </span>
               </button>
 
             </div>

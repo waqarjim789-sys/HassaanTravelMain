@@ -1,16 +1,28 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import EsimHome from "./esim/EsimHome"; // NEW IMPORT
 import { useLanguage } from "@/components/LanguageProvider";
 import {
   homepageTranslations,
+  getHomepageTranslation,
   type CountryKey,
   type HomepageTranslation,
-  type LanguageCode,
   type PackageKey,
 } from "@/translations/homepage";
+import { getDirection } from "@/i18n";
+
+const umrahQuoteLabels = {
+  en: "Get Your Umrah Quote",
+  nl: "Vraag uw Umrah-offerte aan",
+  de: "Umrah-Angebot anfordern",
+  fr: "Demandez votre devis Omra",
+  it: "Richiedi un preventivo Umrah",
+  es: "Solicite su presupuesto de Umrah",
+  ar: "اطلب عرض سعر للعمرة",
+  ur: "عمرہ کا کوٹیشن حاصل کریں",
+} as const;
 
 // =======================================================
 // TYPES
@@ -187,8 +199,11 @@ const getPrice = (dict: HomepageTranslation, item: PackageType) => {
 const PopularTourPackages = () => {
   const { language } = useLanguage();
 
-  const t =
-    homepageTranslations[language as LanguageCode] || homepageTranslations.en;
+  const t = getHomepageTranslation(language);
+  const direction = getDirection(language);
+  const quoteLabel = umrahQuoteLabels[language] ?? umrahQuoteLabels.en;
+  const modalRef = useRef<HTMLDivElement>(null);
+  const modalTitleId = useId();
 
   const [activeCategory, setActiveCategory] = useState<
     "popular" | "Destination" | "Umrah" | "Visa" | "Packages" | "Esim"
@@ -197,6 +212,40 @@ const PopularTourPackages = () => {
   const [selectedPackage, setSelectedPackage] = useState<PackageType | null>(
     null
   );
+
+  useEffect(() => {
+    if (!selectedPackage) return;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    modalRef.current?.focus();
+
+    function handleKey(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setSelectedPackage(null);
+      }
+      if (event.key === "Tab") {
+        const controls = Array.from(modalRef.current?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), a[href], [tabindex="0"]'
+        ) ?? []).filter((element) => element.getClientRects().length > 0);
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (!first || !last) { event.preventDefault(); return; }
+        if (event.shiftKey && (document.activeElement === first || document.activeElement === modalRef.current)) {
+          event.preventDefault(); last.focus();
+        } else if (!event.shiftKey && (document.activeElement === last || document.activeElement === modalRef.current)) {
+          event.preventDefault(); first.focus();
+        }
+      }
+    }
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus instanceof HTMLElement) previousFocus.focus();
+    };
+  }, [selectedPackage]);
 
   const getPackages = (): PackageType[] => {
     switch (activeCategory) {
@@ -251,7 +300,7 @@ const PopularTourPackages = () => {
 
   return (
     <>
-      <section className="relative pb-8 sm:pb-12 pt-11 sm:pt-17 px-4 sm:px-8 md:px-16 overflow-hidden">
+      <section dir={direction} className="relative pb-8 sm:pb-12 pt-11 sm:pt-17 px-4 sm:px-8 md:px-16 overflow-hidden">
         {/* BACKGROUND IMAGE */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15 z-0"
@@ -279,6 +328,8 @@ const PopularTourPackages = () => {
           <div className="flex flex-wrap gap-3 mb-8 border-b border-gray-200 pb-3">
 
             <button
+              type="button"
+              aria-pressed={activeCategory === "popular"}
               onClick={() => setActiveCategory("popular")}
               className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
                 activeCategory === "popular"
@@ -290,6 +341,8 @@ const PopularTourPackages = () => {
             </button>
 
             <button
+              type="button"
+              aria-pressed={activeCategory === "Destination"}
               onClick={() => setActiveCategory("Destination")}
               className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
                 activeCategory === "Destination"
@@ -301,6 +354,8 @@ const PopularTourPackages = () => {
             </button>
 
             <button
+              type="button"
+              aria-pressed={activeCategory === "Umrah"}
               onClick={() => setActiveCategory("Umrah")}
               className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
                 activeCategory === "Umrah"
@@ -312,6 +367,8 @@ const PopularTourPackages = () => {
             </button>
 
             <button
+              type="button"
+              aria-pressed={activeCategory === "Visa"}
               onClick={() => setActiveCategory("Visa")}
               className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
                 activeCategory === "Visa"
@@ -323,6 +380,8 @@ const PopularTourPackages = () => {
             </button>
 
             <button
+              type="button"
+              aria-pressed={activeCategory === "Packages"}
               onClick={() => setActiveCategory("Packages")}
               className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
                 activeCategory === "Packages"
@@ -336,6 +395,8 @@ const PopularTourPackages = () => {
             {/* NEW eSIM TAB */}
 
             <button
+              type="button"
+              aria-pressed={activeCategory === "Esim"}
               onClick={() => setActiveCategory("Esim")}
               className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 text-sm sm:text-base ${
                 activeCategory === "Esim"
@@ -362,6 +423,16 @@ const PopularTourPackages = () => {
 
                 <article
                   key={`${item.key}-${i}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-haspopup="dialog"
+                  aria-label={getName(t, item)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelectedPackage(item);
+                    }
+                  }}
                   onClick={() => setSelectedPackage(item)}
                   className="group flex bg-white rounded-2xl shadow-md overflow-hidden transition-all duration-500 hover:shadow-2xl cursor-pointer"
                 >
@@ -378,12 +449,12 @@ const PopularTourPackages = () => {
                       width={400}
                       height={170}
                       priority={i < 2}
-                      className="w-full h-full object-cover transition-all duration-500 ease-out group-hover:-translate-x-10"
+                      className={`w-full h-full object-cover transition-all duration-500 ease-out ${direction === "rtl" ? "group-hover:translate-x-10" : "group-hover:-translate-x-10"}`}
                     />
 
                   </div>
 
-                  <div className="w-1/2 bg-white px-5 py-4 flex flex-col justify-center transition-all duration-500 ease-out group-hover:-translate-x-6">
+                  <div className={`w-1/2 bg-white px-5 py-4 flex flex-col justify-center transition-all duration-500 ease-out ${direction === "rtl" ? "group-hover:translate-x-6" : "group-hover:-translate-x-6"}`}>
 
                     <h3 className="text-lg font-semibold text-gray-900">
                       {getName(t, item)}
@@ -417,11 +488,17 @@ const PopularTourPackages = () => {
       {/* MODAL - opens when clicking on any card */}
       {selectedPackage && (
         <div
+          dir={direction}
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={() => setSelectedPackage(null)}
         >
           <div
-            className="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200"
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={modalTitleId}
+            tabIndex={-1}
+            className="bg-white rounded-2xl max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto shadow-2xl animate-in fade-in zoom-in duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Image */}
@@ -442,7 +519,7 @@ const PopularTourPackages = () => {
             <div className="p-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900">
+                  <h3 id={modalTitleId} className="text-2xl font-bold text-gray-900">
                     {getName(t, selectedPackage)}
                   </h3>
                   <p className="text-gray-500 mt-1">
@@ -450,6 +527,8 @@ const PopularTourPackages = () => {
                   </p>
                 </div>
                 <button
+                  type="button"
+                  aria-label={t.close}
                   onClick={() => setSelectedPackage(null)}
                   className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
                 >
@@ -465,7 +544,7 @@ const PopularTourPackages = () => {
 
               <div className="mt-6 pt-4 border-t border-gray-100">
                 <p className="text-sm text-gray-500">
-                  {t.startingFrom}
+                  {t.price}
                 </p>
                 <p className="text-[#0F91D5] text-2xl font-bold">
                   {getPrice(t, selectedPackage)}
@@ -477,7 +556,7 @@ const PopularTourPackages = () => {
                   href="/umrah#umrah-form"
                   className="mt-6 flex items-center justify-center w-full bg-[#0F91D5] text-white py-3 rounded-xl font-semibold hover:bg-[#0d80bd] transition-all duration-300 shadow-md hover:shadow-xl"
                 >
-                  Get Your Umrah Quote
+                  {quoteLabel}
                 </a>
               ) : (
                 <a
@@ -496,6 +575,7 @@ const PopularTourPackages = () => {
                 </a>
               )}
               <button
+                type="button"
                 onClick={() => setSelectedPackage(null)}
                 className="mt-3 w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
               >

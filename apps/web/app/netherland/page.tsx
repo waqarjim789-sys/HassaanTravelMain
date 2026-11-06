@@ -1,39 +1,31 @@
+"use client";
+
 import CommonHeader from "@/components/ui/CommonHeader";
 import Faqs from "@/components/ui/Faqs";
 import HeadDesImg from "@/components/ui/HeadDesImg";
 import SideIconDesc from "@/components/ui/SideIconDesc";
 import Testimonials from "@/components/ui/Testimonials";
 import Image from "next/image";
+import type { ReactNode } from "react";
 import { FaPassport } from "react-icons/fa";
 import { GiLaptop } from "react-icons/gi";
 import { ImCreditCard } from "react-icons/im";
 import { LuHeadset } from "react-icons/lu";
+import { useLanguage } from "@/components/LanguageProvider";
+import { getDirection } from "@/i18n";
+import {
+  getNetherlandsTranslation,
+  type NetherlandsVisaTypeKey,
+} from "@/translations/netherlands";
+import { getVisaCountriesTranslation } from "@/translations/visaCountries";
 
-const visaType = {
-  head: "Which Visa Do You Need?",
-  data: [
-    {
-      title: "Tourist Visa",
-      desc: "Ideal for leisure travel and exploring the Netherlands.",
-      icon: <ImCreditCard />,
-    },
-    {
-      title: "Business Visa",
-      desc: "For meetings, events, and professional engagements.",
-      icon: <LuHeadset />,
-    },
-    {
-      title: "Family Visit Visa",
-      desc: "Reunite with loved ones living in the Netherlands.",
-      icon: <FaPassport />,
-    },
-    {
-      title: "Student Visa",
-      desc: "For academic or training opportunities (if applicable).",
-      icon: <GiLaptop />,
-    },
-  ],
-};
+// Icons stay in code; text comes from translations/netherlands.ts.
+const visaTypeIcons: { key: NetherlandsVisaTypeKey; icon: ReactNode }[] = [
+  { key: "tourist", icon: <ImCreditCard /> },
+  { key: "business", icon: <LuHeadset /> },
+  { key: "familyVisit", icon: <FaPassport /> },
+  { key: "student", icon: <GiLaptop /> },
+];
 
 const imageLinks = [
   "/assets/netherland/net1.webp",
@@ -41,49 +33,87 @@ const imageLinks = [
   "/assets/netherland/travel-3.webp",
 ];
 
-export default function NetherlandsPage() {
+/** "Start <highlight>" + optional highlighted second line. */
+function HighlightTitle({
+  start,
+  highlight,
+  line2,
+}: {
+  start: string;
+  highlight: string;
+  line2: string;
+}) {
   return (
-    <main className="w-full overflow-x-hidden bg-gray-50/30">
+    <>
+      {start}
+      <span className="text-[#0F91D5]">{highlight}</span>
+      {line2 && <span className="text-[#0F91D5] block mt-1">{line2}</span>}
+    </>
+  );
+}
+
+export default function NetherlandsPage() {
+  const { language } = useLanguage();
+  const t = getNetherlandsTranslation(language);
+  const shared = getVisaCountriesTranslation(language).shared;
+
+  const visaType = {
+    head: shared.visaTypesHeading,
+    data: visaTypeIcons.map(({ key, icon }) => ({
+      title: t.visaTypes[key].title,
+      desc: t.visaTypes[key].desc,
+      icon,
+    })),
+  };
+
+  return (
+    <main
+      dir={getDirection(language)}
+      className="w-full overflow-x-hidden bg-gray-50/30"
+    >
       <CommonHeader
-        heading={"Netherlands Visa Services for Pakistani & UAE \n Citizens"}
-        desc="Expert Visa Services for Pakistani and UAE Travelers."
+        heading={t.header.heading}
+        desc={shared.headerDescription}
       />
 
       {/* ================= HERO SECTION WITH CUSTOM OVERLAY ================= */}
       <section className="relative py-16 px-6 overflow-hidden min-h-125 flex items-center justify-center w-full">
         {/* BACKGROUND IMAGE OVERLAY */}
-        <div 
+        <div
+          aria-hidden="true"
           className="absolute inset-0 bg-cover bg-center opacity-[0.22] pointer-events-none z-0"
           style={{ backgroundImage: "url('/assets/about-us/3.webp')" }}
         />
-        
+
         {/* CONTENT CONTAINER */}
         <div className="relative z-10 max-w-7xl mx-auto w-full px-4 flex flex-col gap-14">
-          
+
           {/* ================= SECTION 1 ================= */}
           <div className="w-full">
             <HeadDesImg
               title={
-                <>
-                  Simplifying Your <span className="text-[#0F91D5]">Netherlands</span>
-                  <span className="text-[#0F91D5] block mt-1">Visa Process</span>
-                </>
+                <HighlightTitle
+                  start={t.intro.titleStart}
+                  highlight={t.intro.titleHighlight}
+                  line2={t.intro.titleLine2}
+                />
               }
-              description="Citizens of the UAE can travel to the Netherlands without a visa for short stays, typically up to 90 days within a 180-day period, for tourism or business purposes."
+              description={t.intro.description}
               imageSrc="/assets/netherland/net1.webp"
+              imageAlt={t.intro.imageAlt}
             />
           </div>
 
-          {/* ================= NOTE (ORIGINAL SIZE, PERFECTLY CENTERED) ================= */}
+          {/* ================= NOTE ================= */}
           <div className="max-w-210 w-full bg-gray-200/60 backdrop-blur-md border border-white/40 rounded-2xl shadow-sm py-3.5 px-6 text-center mt-4 mx-auto">
             {/* Line 1: Main Rule */}
-            <p className="font-bold text-[#0F91D5] text-[10.5px] tracking-tight whitespace-nowrap overflow-x-auto max-w-full">
-              If your visa application is canceled, the visa costs and service costs are not returned
+            <p className="font-bold text-[#0F91D5] text-[10.5px] tracking-tight rtl:tracking-normal text-balance">
+              {shared.refundNote.line1}
             </p>
 
             {/* Line 2: Details */}
-            <p className="text-gray-800 text-[9.5px] font-medium mt-0.5 whitespace-nowrap overflow-x-auto max-w-full">
-              For short-term tourist single-entry visa, it is valid for 30 days and with no extension. The visa processing fee will be 250 AED.
+            <p className="text-gray-800 text-[9.5px] font-medium mt-0.5 text-balance">
+              {shared.refundNote.line2}
             </p>
           </div>
         </div>
@@ -91,12 +121,15 @@ export default function NetherlandsPage() {
 
       {/* ================= MIDDLE SECTIONS CONTAINER (FULL WIDTH BG) ================= */}
       <section className="relative w-full py-16 px-6 overflow-hidden">
-        
+
         {/* BACKGROUND IMAGE: H2 Custom Background */}
-        <div className="absolute inset-0 z-0 w-full h-full pointer-events-none">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 z-0 w-full h-full pointer-events-none"
+        >
           <Image
             src="/assets/bgimage/h2.webp"
-            alt="Background Pattern"
+            alt=""
             fill
             priority
             className="object-cover opacity-[0.18]"
@@ -105,22 +138,24 @@ export default function NetherlandsPage() {
 
         {/* CONTENT WRAPPER */}
         <div className="relative z-10 max-w-7xl mx-auto flex flex-col gap-14 w-full">
-          
-          {/* ================= SECTION 2 (REMOVED DUPLICATE CARD CONTAINER TO FIX DOUBLE BORDER) ================= */}
+
+          {/* ================= SECTION 2: VISA-FREE FOR UAE ================= */}
           <div className="w-full">
             <HeadDesImg
               title={
-                <>
-                  Visa-Free Travel for <span className="text-[#0F91D5]">UAE</span>
-                  <span className="text-[#0F91D5] block mt-1">Citizens</span>
-                </>
+                <HighlightTitle
+                  start={t.uae.titleStart}
+                  highlight={t.uae.titleHighlight}
+                  line2={t.uae.titleLine2}
+                />
               }
-              description="UAE citizens can travel to the Netherlands for tourism and business purposes without having a visa if they have an Emirati passport. The Netherlands allows them to stay for a short period of time, for up to 90 days"
+              description={t.uae.description}
               imageSrc="/assets/netherland/net2.webp"
+              imageAlt={t.uae.imageAlt}
             />
           </div>
 
-          {/* ================= VISA TYPES (MAXIMUM STRETCH OUTWARD) ================= */}
+          {/* ================= VISA TYPES ================= */}
           <div className="w-full -mx-4 md:-mx-6 px-4 md:px-6 lg:max-w-none lg:w-auto">
             <SideIconDesc data={visaType} />
           </div>

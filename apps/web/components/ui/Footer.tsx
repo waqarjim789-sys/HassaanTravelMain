@@ -15,17 +15,40 @@ import { FiMail, FiPhone } from "react-icons/fi";
 
 import { useLanguage } from "../LanguageProvider";
 import { footerTranslations } from "../../translations/footer";
+import { getDirection, isSupportedLocale, FALLBACK_LOCALE } from "@/i18n";
+
+type FooterTranslation = {
+  [Key in keyof typeof footerTranslations.en]: string;
+};
+
+function getFooterTranslation(language: string): FooterTranslation {
+  const normalized = language.trim().toLowerCase().split(/[-_]/)[0];
+  const locale = isSupportedLocale(normalized) ? normalized : FALLBACK_LOCALE;
+  const fallback: FooterTranslation = footerTranslations.en;
+  const selected: Partial<FooterTranslation> | undefined =
+    footerTranslations[locale as keyof typeof footerTranslations];
+  const result: FooterTranslation = { ...fallback };
+
+  for (const key of Object.keys(fallback) as Array<keyof FooterTranslation>) {
+    const label = selected?.[key];
+    if (typeof label === "string" && label.trim().length > 0) {
+      result[key] = label;
+    }
+  }
+
+  return result;
+}
 
 
 export default function Footer() {
 
   const { language } = useLanguage();
 
-  const t = footerTranslations[language];
+  const t = getFooterTranslation(language);
 
 
   return (
-    <footer className="bg-[#0A1120] text-white px-6 md:px-16 py-14">
+    <footer dir={getDirection(language)} className="bg-[#0A1120] text-white px-6 md:px-16 py-14">
 
       <div className="max-w-7xl mx-auto">
 
@@ -58,7 +81,7 @@ export default function Footer() {
 
               <Image
                 src="/assets/footer/iata1.webp"
-                alt="iata"
+                alt="IATA"
                 width={36}
                 height={36}
               />
@@ -224,7 +247,7 @@ export default function Footer() {
 
                 <HiOutlineLocationMarker className="text-blue-400 text-lg mt-0.5 flex-shrink-0" />
 
-                <span>
+                <span dir="ltr">
                   Dordtselaan 67 D, 3081 BG, Rotterdam
                 </span>
 
@@ -239,7 +262,7 @@ export default function Footer() {
 
                 <FiMail className="text-blue-400 text-lg flex-shrink-0" />
 
-                <span>
+                <span dir="ltr" className="break-all">
                   Info@hassaantravel.nl
                 </span>
 
@@ -249,14 +272,14 @@ export default function Footer() {
 
 
               <a
-                href="tel:+31 (0) 104857673"
+                href="tel:+31104857673"
                 className="flex items-center gap-3 hover:text-blue-400 transition-colors"
               >
 
                 <FiPhone className="text-blue-400 text-lg flex-shrink-0" />
 
-                <span>
-                  +31 (0) 104857673
+                <span dir="ltr">
+                  +31 (0) 10 485 7673
                 </span>
 
               </a>
@@ -268,6 +291,7 @@ export default function Footer() {
 
 
                 <Link
+                  aria-label="Facebook"
                   href="https://www.facebook.com/p/Hassaan-Travel-100070189773851/"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -278,6 +302,7 @@ export default function Footer() {
 
 
                 <Link
+                  aria-label="Instagram"
                   href="https://www.instagram.com/hassaantravel/?hl=en"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -288,6 +313,7 @@ export default function Footer() {
 
 
                 <Link
+                  aria-label="TikTok"
                   href="https://www.tiktok.com/@hassaantravel"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -298,6 +324,7 @@ export default function Footer() {
 
 
                 <Link
+                  aria-label="LinkedIn"
                   href="#"
                   className="w-8 h-8 flex items-center justify-center bg-white/5 rounded-md hover:bg-[#0F91D5] transition-colors"
                 >
@@ -343,13 +370,13 @@ export default function Footer() {
 
             <Image
               src="/assets/footer/logo.webp"
-              alt="logo"
+              alt="IT Solutions Worldwide"
               width={18}
               height={18}
             />
 
 
-            <span>
+            <span dir="ltr">
               IT SOLUTIONS WORLDWIDE
             </span>
 

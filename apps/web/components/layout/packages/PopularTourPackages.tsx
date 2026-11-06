@@ -3,6 +3,17 @@
 import React, { useMemo, useState } from "react";
 import { Hotel, Star, PlaneTakeoff, ChevronLeft, ChevronRight } from "lucide-react";
 import { PackagesBenefits } from "./PackagesBenefits";
+import { useLanguage } from "@/components/LanguageProvider";
+import { getDirection } from "@/i18n";
+import { interpolate } from "@/lib/createTranslator";
+import { getPackagesTranslation } from "@/translations/packages";
+
+// =======================================================
+// PACKAGE DATA
+// Business data stays in English (owner decision). Only UI labels
+// are translated. Known label values ("On Request", "Custom",
+// "On request", "Any time") are translated at render time.
+// =======================================================
 
 const packages = [
   {
@@ -406,9 +417,23 @@ const packages = [
   },
 ];
 
+type PackageItem = (typeof packages)[number];
+
 const ITEMS_PER_PAGE = 4;
 
+const isNumericPrice = (price: string) =>
+  price !== "On Request" && price !== "Custom";
+
 const PopularTourPackages: React.FC = () => {
+  const { language } = useLanguage();
+  const t = getPackagesTranslation(language).popular;
+  const direction = getDirection(language);
+  const isRTL = direction === "rtl";
+
+  // In RTL the "previous" control sits on the right and points right.
+  const PrevIcon = isRTL ? ChevronRight : ChevronLeft;
+  const NextIcon = isRTL ? ChevronLeft : ChevronRight;
+
   const [currentPage, setCurrentPage] = useState(1);
   const [activeImageIndexes, setActiveImageIndexes] = useState<{ [key: number]: number }>({});
 
@@ -440,9 +465,10 @@ const PopularTourPackages: React.FC = () => {
     });
   };
 
-  const handleBooking = (item: typeof packages[0]) => {
+  // The office always receives this message in English.
+  const handleBooking = (item: PackageItem) => {
     const phoneNumber = "31104857673";
-    
+
     const rawMessage = `Hello, I am interested in booking a package. Here are the details:
 
 🌟 *Package Name:* ${item.title}
@@ -455,38 +481,48 @@ Please provide me with more details regarding availability and booking requireme
 
     const encodedMessage = encodeURIComponent(rawMessage);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-    window.open(whatsappUrl, "_blank");
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
   };
 
-  const isNumericPrice = (price: string) => {
-    return price !== "On Request" && price !== "Custom";
+  const getPriceLabel = (price: string) => {
+    if (price === "On Request") return t.onRequest;
+    if (price === "Custom") return t.custom;
+    return `€ ${price}`;
+  };
+
+  const getDepartureLabel = (value: string) => {
+    if (value === "On request") return t.departureOnRequest;
+    if (value === "Any time") return t.departureAnyTime;
+    return value;
   };
 
   return (
-    <section className="relative py-16 overflow-hidden">
+    <section dir={direction} className="relative py-16 overflow-hidden">
       <div
+        aria-hidden="true"
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15 z-0"
         style={{ backgroundImage: "url('/assets/bgimage/h1.webp')" }}
       />
 
-      <div className="absolute inset-0 bg-linear-to-b from-[rgba(207,234,246,0.15)] to-[rgba(85,178,218,0.25)] z-0"></div>
-      <div className="absolute inset-0 bg-white/35 z-0"></div>
+      <div aria-hidden="true" className="absolute inset-0 bg-linear-to-b from-[rgba(207,234,246,0.15)] to-[rgba(85,178,218,0.25)] z-0" />
+      <div aria-hidden="true" className="absolute inset-0 bg-white/35 z-0" />
 
       <div className="container relative z-10 max-w-7xl mx-auto px-4">
-        
+
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-[#0F91D5]">
-            Popular Tour Packages <span className="text-black">From Netherlands</span>
+            {t.titleHighlight} <span className="text-black">{t.titleRest}</span>
           </h2>
 
           <p className="text-gray-600 mt-3 text-sm md:text-base max-w-2xl mx-auto">
-            Embark on unforgettable journeys to destinations like Tanzania, Malaysia, Japan and more.
+            {t.description}
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {currentPackages.map((item) => {
             const currentImgIndex = activeImageIndexes[item.id] || 0;
+            const numeric = isNumericPrice(item.price);
 
             return (
               <div
@@ -497,64 +533,75 @@ Please provide me with more details regarding availability and booking requireme
                   <img
                     src={item.images[currentImgIndex]}
                     className="h-52 w-full object-cover transition-all duration-300"
-                    alt={`${item.title} - view ${currentImgIndex + 1}`}
+                    alt={interpolate(t.imageAlt, {
+                      title: item.title,
+                      number: currentImgIndex + 1,
+                    })}
                   />
 
                   <button
                     onClick={() => handlePrevImage(item.id, item.images.length)}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full transition duration-200 hover:bg-black/70 z-10"
+                    className="absolute start-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full transition duration-200 hover:bg-black/70 z-10"
                     type="button"
+                    aria-label={t.previousImage}
                   >
-                    <ChevronLeft size={20} />
+                    <PrevIcon size={20} aria-hidden="true" />
                   </button>
 
                   <button
                     onClick={() => handleNextImage(item.id, item.images.length)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full transition duration-200 hover:bg-black/70 z-10"
+                    className="absolute end-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full transition duration-200 hover:bg-black/70 z-10"
                     type="button"
+                    aria-label={t.nextImage}
                   >
-                    <ChevronRight size={20} />
+                    <NextIcon size={20} aria-hidden="true" />
                   </button>
 
-                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-xl shadow text-[#0F91D5] font-semibold text-sm w-[110px] h-[58px] flex flex-col items-center justify-center text-center leading-tight">
-  {isNumericPrice(item.price) && (
-    <div className="text-[10px] text-gray-500">From</div>
-  )}
-  
-  <div className="text-sm font-bold">
-    {isNumericPrice(item.price) ? `€ ${item.price}` : item.price}
-  </div>
-  
-  {isNumericPrice(item.price) && (
-    <div className="text-[10px] text-gray-400">per person</div>
-  )}
-</div>
+                  {/* PRICE BADGE */}
+                  <div className="absolute top-3 end-3 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-xl shadow text-[#0F91D5] font-semibold text-sm w-[110px] h-[58px] flex flex-col items-center justify-center text-center leading-tight">
+                    {numeric && (
+                      <div className="text-[10px] text-gray-500">{t.from}</div>
+                    )}
 
-                  <div className="absolute bottom-0 bg-white rounded-md left-2 p-1 text-xs text-gray-500 mb-2">
+                    <div className="text-sm font-bold">
+                      <bdi>{getPriceLabel(item.price)}</bdi>
+                    </div>
+
+                    {numeric && (
+                      <div className="text-[10px] text-gray-400">{t.perPerson}</div>
+                    )}
+                  </div>
+
+                  <div dir="ltr" className="absolute bottom-0 bg-white rounded-md start-2 p-1 text-xs text-gray-500 mb-2">
                     ⭐ 4.8 (365)
                   </div>
                 </div>
 
-                <div className="p-4 text-left flex flex-col flex-grow">
-                  <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
+                <div className="p-4 text-start flex flex-col flex-grow">
+                  <h3 className="font-semibold text-sm mb-1">
+                    <bdi>{item.title}</bdi>
+                  </h3>
 
                   <p className="text-xs text-gray-500 mb-3">
-                    🕒 {item.duration}
+                    <span aria-hidden="true">🕒 </span>
+                    <bdi>{item.duration}</bdi>
                   </p>
 
                   <div className="bg-[#F8F9FA] p-5 rounded-lg text-xs mb-3">
                     <div className="flex gap-2 items-start">
-                      <Hotel className="text-[#058BD0] shrink-0 mt-0.5" />
-                      <div>
-                        <h2 className="font-bold block w-full">
-                          {item.stay.name}
-                        </h2>
-                        <span className="flex mt-1 block">
+                      <Hotel aria-hidden="true" className="text-[#058BD0] shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <p className="font-bold block w-full">
+                          <bdi>{item.stay.name}</bdi>
+                        </p>
+                        <span aria-hidden="true" className="flex mt-1">
                           {Array.from({ length: 5 }).map((_, index) => (
-                            <Star key={index} className="fill-yellow-400 text-yellow-400 size-4 inline mr-0.5" />
+                            <Star key={index} className="fill-yellow-400 text-yellow-400 size-4 inline me-0.5" />
                           ))}
                         </span>
-                        <div className="font-normal mt-1 text-gray-600">{item.stay.room}</div>
+                        <div className="font-normal mt-1 text-gray-600">
+                          <bdi>{item.stay.room}</bdi>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -564,24 +611,27 @@ Please provide me with more details regarding availability and booking requireme
                   <div className="flex flex-wrap gap-2 mb-4">
                     {item.experice.map((exp, ind) => (
                       <p key={ind} className="bg-[#E3F2FD] text-[#0F91D5] text-[10px] px-2 py-1 rounded-xl">
-                        {exp}
+                        <bdi>{exp}</bdi>
                       </p>
                     ))}
                   </div>
 
-                  <div className="flex justify-between text-xs mb-4 mt-auto">
+                  <div className="flex justify-between gap-2 text-xs mb-4 mt-auto">
                     <span className="flex items-center">
-                      <PlaneTakeoff className="mr-2 size-4" />
-                      Next Departure:
+                      <PlaneTakeoff aria-hidden="true" className="me-2 size-4 shrink-0" />
+                      {t.nextDepartureLabel}
                     </span>
-                    <span className="font-medium">{item.nextDeparture}</span>
+                    <span className="font-medium">
+                      {getDepartureLabel(item.nextDeparture)}
+                    </span>
                   </div>
 
-                  <button 
+                  <button
+                    type="button"
                     onClick={() => handleBooking(item)}
                     className="w-full bg-[#0F91D5] font-bold text-white py-2.5 rounded-lg text-sm hover:bg-blue-700 transition mt-2"
                   >
-                    Book Now
+                    {t.bookNow}
                   </button>
                 </div>
               </div>
@@ -590,7 +640,10 @@ Please provide me with more details regarding availability and booking requireme
         </div>
 
         {/* PAGINATION SECTION */}
-        <div className="flex justify-center items-center flex-wrap mt-12 gap-3 text-sm font-medium">
+        <nav
+          aria-label={t.paginationLabel}
+          className="flex justify-center items-center flex-wrap mt-12 gap-3 text-sm font-medium"
+        >
           <button
             type="button"
             onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
@@ -601,7 +654,7 @@ Please provide me with more details regarding availability and booking requireme
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
-            Previous
+            {t.previous}
           </button>
 
           {Array.from({ length: totalPages }, (_, index) => {
@@ -611,6 +664,8 @@ Please provide me with more details regarding availability and booking requireme
                 key={page}
                 type="button"
                 onClick={() => handlePageChange(page)}
+                aria-label={interpolate(t.pageLabel, { number: page })}
+                aria-current={currentPage === page ? "page" : undefined}
                 className={`px-4 py-2 rounded-lg transition ${
                   currentPage === page
                     ? "bg-[#0F91D5] text-white shadow-md shadow-blue-500/20"
@@ -632,9 +687,9 @@ Please provide me with more details regarding availability and booking requireme
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
-            Next
+            {t.next}
           </button>
-        </div>
+        </nav>
 
       </div>
     </section>

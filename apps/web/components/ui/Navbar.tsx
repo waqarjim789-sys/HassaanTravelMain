@@ -5,10 +5,25 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Menu, X, ChevronDown, Phone } from "lucide-react";
-import BookingModal from "./BookingModal"; 
+import BookingModal from "./BookingModal";
+import { getDirection } from "@/i18n";
+
+const navigationLabels = {
+  en: { open: "Open menu", close: "Close menu", call: "Call" },
+  nl: { open: "Menu openen", close: "Menu sluiten", call: "Bellen" },
+  de: { open: "Menü öffnen", close: "Menü schließen", call: "Anrufen" },
+  fr: { open: "Ouvrir le menu", close: "Fermer le menu", call: "Appeler" },
+  it: { open: "Apri menu", close: "Chiudi menu", call: "Chiama" },
+  es: { open: "Abrir menú", close: "Cerrar menú", call: "Llamar" },
+  ar: { open: "فتح القائمة", close: "إغلاق القائمة", call: "اتصل" },
+  ur: { open: "مینو کھولیں", close: "مینو بند کریں", call: "کال کریں" },
+} as const;
 
 export default function Navbar() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const direction = getDirection(language);
+  const isRTL = direction === "rtl";
+  const labels = navigationLabels[language] ?? navigationLabels.en;
   const [open, setOpen] = useState(false);
   const [mobileVisaOpen, setMobileVisaOpen] = useState(false);
   const [desktopVisaOpen, setDesktopVisaOpen] = useState(false); 
@@ -31,7 +46,7 @@ export default function Navbar() {
   return (
     <>
       {/* 🔹 Responsive Position: Mobile pe relative, Desktop/Tablet (md+) pe fixed */}
-      <header className="relative md:fixed top-0 left-0 w-full flex justify-between items-center px-4 sm:px-6 md:px-12 py-4 bg-white shadow-sm z-50">
+      <header dir={direction} className="relative md:fixed top-0 left-0 w-full flex justify-between items-center px-4 sm:px-6 md:px-12 py-4 bg-white shadow-sm z-50">
         
         {/* LOGO */}
         <Link href="/">
@@ -51,7 +66,7 @@ export default function Navbar() {
           </Link>
 
           <Link href="/umrah" className="hover:text-[#0F91D5] transition">
-            Umrah
+            {t.umrah}
           </Link>
 
           {/* DYNAMIC VISA DROPDOWN */}
@@ -72,8 +87,11 @@ export default function Navbar() {
                 type="button"
                 onClick={(e) => {
                   e.preventDefault();
-                  setDesktopVisaOpen(!desktopVisaOpen);
+                  setDesktopVisaOpen((previous) => !previous);
                 }}
+                aria-label={t.visa}
+                aria-expanded={desktopVisaOpen}
+                aria-controls="desktop-visa-links"
                 className="p-1 cursor-pointer hover:text-[#0F91D5] flex items-center border-none bg-transparent outline-none"
               >
                 <ChevronDown 
@@ -84,7 +102,7 @@ export default function Navbar() {
             </div>
 
             {/* DROPDOWN MENU PANEL */}
-            <div className={`absolute left-0 top-full mt-1 w-56 bg-white shadow-lg rounded-lg p-2 transition-all duration-200 z-50 ${
+            <div id="desktop-visa-links" className={`absolute ${isRTL ? "right-0" : "left-0"} top-full mt-1 w-56 bg-white shadow-lg rounded-lg p-2 transition-all duration-200 z-50 ${
               desktopVisaOpen ? "opacity-100 visible" : "opacity-0 invisible"
             }`}>
               <Link
@@ -132,10 +150,10 @@ export default function Navbar() {
           <a
             href="tel:+31104857673"
             className="hidden md:flex items-center gap-2 text-sm text-gray-500 hover:text-blue-400 transition-colors"
-            aria-label="Call +31 (0) 10 485 7673"
+            aria-label={`${labels.call} +31 (0) 10 485 7673`}
           >
             <Phone size={16} className="text-black fill-current" />
-            <span>+31 (0) 10 485 7673</span>
+            <span dir="ltr">+31 (0) 10 485 7673</span>
           </a>
 
          {/* DESKTOP BOOK NOW BUTTON */}
@@ -150,7 +168,14 @@ export default function Navbar() {
 </div>
           {/* MOBILE MENU BUTTON */}
           <button
-            onClick={() => setOpen(!open)}
+            type="button"
+            aria-label={open ? labels.close : labels.open}
+            aria-expanded={open}
+            aria-controls="mobile-navigation"
+            onClick={() => {
+              setOpen((previous) => !previous);
+              setMobileVisaOpen(false);
+            }}
             className="md:hidden p-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 cursor-pointer"
           >
             {open ? <X size={22} /> : <Menu size={22} />}
@@ -159,7 +184,7 @@ export default function Navbar() {
 
         {/* MOBILE DRAWER MENU */}
         {open && (
-          <div className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col items-center py-6 gap-2 md:hidden z-50">
+          <div id="mobile-navigation" className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col items-center py-6 gap-2 md:hidden z-50">
             <Link className="text-gray-700 font-medium py-2" href="/destinations" onClick={() => setOpen(false)}>
               {t.destinations}
             </Link>
@@ -183,9 +208,12 @@ export default function Navbar() {
                   type="button"
                   onClick={(e) => {
                     e.preventDefault();
-                    setMobileVisaOpen(!mobileVisaOpen);
+                    setMobileVisaOpen((previous) => !previous);
                   }}
-                  className="absolute left-full ml-1 p-1 cursor-pointer hover:text-[#0F91D5] flex items-center border-none bg-transparent outline-none"
+                  aria-label={t.visa}
+                  aria-expanded={mobileVisaOpen}
+                  aria-controls="mobile-visa-links"
+                  className={`absolute ${isRTL ? "right-full mr-1" : "left-full ml-1"} p-1 cursor-pointer hover:text-[#0F91D5] flex items-center border-none bg-transparent outline-none`}
                 >
                   <ChevronDown
                     size={16}
@@ -195,14 +223,14 @@ export default function Navbar() {
               </div>
 
               {mobileVisaOpen && (
-                <div className="flex flex-col items-center gap-3 mt-2 mb-2 bg-gray-50/50 w-full py-2">
+                <div id="mobile-visa-links" className="flex flex-col items-center gap-3 mt-2 mb-2 bg-gray-50/50 w-full py-2">
                   <Link href="/pakistan" className="text-sm text-gray-600 hover:text-[#0F91D5]" onClick={() => setOpen(false)}>
                     {t.pakistanVisa}
                   </Link>
-                  <Link href="/netherland" className="text-sm text-gray-600 hover:text-[#0F91D5]" onClick={() => setOpen(false)}>
-                    {t.otherVisa}
+                  <Link href="/saudi-arabia" className="text-sm text-gray-600 hover:text-[#0F91D5]" onClick={() => setOpen(false)}>
+                    {t.saudiVisa}
                   </Link>
-                  <Link href="/uae" className="text-sm text-gray-600 hover:text-[#0F91D5]" onClick={() => setOpen(false)}>
+                  <Link href="/destinations" className="text-sm text-gray-600 hover:text-[#0F91D5]" onClick={() => setOpen(false)}>
                     {t.otherVisa}
                   </Link>
                 </div>
@@ -225,7 +253,7 @@ export default function Navbar() {
             <div className="pt-4 border-t w-full flex flex-col items-center mt-3">
               <div className="flex items-center gap-2 mb-2 text-sm text-gray-500">
                 <Phone size={14} className="text-black fill-current" />
-                <a href="tel:+31104857673" className="hover:text-black transition-colors">
+                <a dir="ltr" aria-label={`${labels.call} +31 (0) 10 485 7673`} href="tel:+31104857673" className="hover:text-black transition-colors">
                   +31 (0) 10 485 7673
                 </a>
               </div>

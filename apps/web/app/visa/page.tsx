@@ -1,12 +1,15 @@
+"use client";
+
 import MutipleImageRightText from "@/components/ui/MutipleImageRightText";
 import Services from "@/components/layout/visas/Services";
 import CommonHeader from "@/components/ui/CommonHeader";
-import CenterIconHeadingDesc from "@/components/ui/CenterIconHeadingDesc";
 import Testimonials from "@/components/ui/Testimonials";
 import Faqs from "@/components/ui/Faqs";
 import Map from "@/components/ui/Map";
 import BlueBgHeadAndDesc from "@/components/ui/BlueBgHeadAndDesc";
-
+import { useLanguage } from "@/components/LanguageProvider";
+import { getDirection } from "@/i18n";
+import { getVisaTranslation } from "@/translations/visa";
 
 const imageData = [
   "/assets/visa/why-1.webp",
@@ -21,44 +24,42 @@ const faqImasgesLinks = [
   "/assets/visa/f3.webp",
   "/assets/visa/f4.webp",
 ];
-export default function UmrahPage() {
+
+export default function VisaPage() {
+  const { language } = useLanguage();
+  const t = getVisaTranslation(language);
+
   return (
-    <main className="w-full overflow-hidden">
+    <main dir={getDirection(language)} className="w-full overflow-hidden">
       {/* HERO SECTION */}
-     <CommonHeader
-        heading={"Affordable Visa Services for Travelers in the \nNetherlands and neighbouring countries"}
-        desc="Get your KSA, Pakistani and many other visas quickly  and easily with Hassaan Travel."
+      <CommonHeader
+        heading={t.header.heading}
+        desc={t.header.description}
       />
 
-
       {/* OUR SERVICES SECTION */}
-
       <Services />
 
       <MutipleImageRightText imageData={imageData} />
 
-
-      {/* <FaqSection /> */}
+      {/* FAQ SECTION */}
       <Faqs imagesLinks={faqImasgesLinks} />
 
-
-      {/* <ContactForm /> */}
+      {/* CONTACT / MAP SECTION */}
       <Map />
 
-      {/* <TestimonialsSection /> */}
+      {/* TESTIMONIALS */}
       <Testimonials />
 
-      {/* 🔥 VISA CTA SECTION */}
-<BlueBgHeadAndDesc
-  head="Ready to Apply for Your Visa?"
-  desc="Our travel experts are ready to guide you through the visa process quickly and smoothly. Contact us now for instant support."
-  btnTxt="Call Now"
-  btnTxt2="Book Now"
-  btnLink="tel:+9231104857673"
-  btnLink2="https://wa.me/31104857673?text=Hello%20Hassaan%20Travel,%20I%20want%20to%20book%20a%20visa"
-/>
-
-      {/* <ContactSection /> */}
+      {/* VISA CTA SECTION */}
+      <BlueBgHeadAndDesc
+        head={t.cta.heading}
+        desc={t.cta.description}
+        btnTxt={t.cta.callButton}
+        btnTxt2={t.cta.bookButton}
+        btnLink="tel:+31104857673"
+        btnLink2="https://wa.me/31104857673?text=Hello%20Hassaan%20Travel,%20I%20want%20to%20book%20a%20visa"
+      />
     </main>
   );
 }

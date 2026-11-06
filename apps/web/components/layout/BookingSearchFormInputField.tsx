@@ -1,10 +1,16 @@
 "use client";
-import React from "react";
+
+import React, { useId } from "react";
 
 interface Props {
   placeHolder: string;
   label: string;
+  name?: string;
+  id?: string;
   value?: string;
+  readOnly?: boolean;
+  required?: boolean;
+  inputDirection?: "ltr" | "rtl" | "auto";
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleChange?: (name: string, value: string) => void;
 }
@@ -12,25 +18,36 @@ interface Props {
 export const BookingSearchFormInputField = ({
   placeHolder,
   label,
+  name,
+  id,
   value,
+  readOnly = false,
+  required = true,
+  inputDirection,
   handleChange,
   onChange,
 }: Props) => {
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
+
   return (
     <div className="h-21.25 flex flex-col justify-center px-5 bg-white rounded-xl shadow-sm">
-      {/* LABEL */}
-      <span className="text-gray-800 font-bold text-sm mb-1 text-left">
+      <label htmlFor={inputId} className="text-gray-800 font-bold text-sm mb-1 text-start">
         {label}
-      </span>
+      </label>
 
-      {/* INPUT */}
       <input
-        name={label.toLowerCase()}
+        id={inputId}
+        name={name ?? label.toLowerCase()}
         type="text"
+        dir={inputDirection}
         placeholder={placeHolder}
-        value={value || ""}
-        onChange={(e) => {
-          handleChange?.(e.target.name, e.target.value);
+        value={value ?? ""}
+        readOnly={readOnly}
+        required={required}
+        onChange={(event) => {
+          handleChange?.(event.target.name, event.target.value);
+          onChange?.(event);
         }}
         className="
           bg-transparent
@@ -39,9 +56,8 @@ export const BookingSearchFormInputField = ({
           placeholder:text-gray-400
           text-base sm:text-base
           font-medium
-          text-left
+          text-start
         "
-        required
       />
     </div>
   );

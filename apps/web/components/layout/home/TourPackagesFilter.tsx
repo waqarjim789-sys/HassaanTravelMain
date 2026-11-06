@@ -2,12 +2,17 @@
 
 import { useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
+import { getDirection } from "@/i18n";
 import {
-  homepageTranslations,
-  type LanguageCode,
+  getHomepageTranslation,
   type TourCategoryKey,
   type TourItemKey,
 } from "@/translations/homepage";
+
+/*
+ * NOTE: This component is currently not imported by any page.
+ * Kept up to date so it works if it is used later.
+ */
 
 // Categories JSON — text lives in the translation file, only the key stays here
 const categories: { id: number; key: TourCategoryKey }[] = [
@@ -20,81 +25,65 @@ const categories: { id: number; key: TourCategoryKey }[] = [
 
 // Tours JSON
 const tours: { id: number; key: TourItemKey; category: TourCategoryKey }[] = [
-  {
-    id: 1,
-    key: "dubaiAdventure",
-    category: "popular",
-  },
-  {
-    id: 2,
-    key: "familyTurkey",
-    category: "family",
-  },
-  {
-    id: 3,
-    key: "maldivesCouple",
-    category: "honeymoon",
-  },
-  {
-    id: 4,
-    key: "northernAreas",
-    category: "summer",
-  },
-  {
-    id: 5,
-    key: "lahoreHeritage",
-    category: "cultural",
-  },
+  { id: 1, key: "dubaiAdventure", category: "popular" },
+  { id: 2, key: "familyTurkey", category: "family" },
+  { id: 3, key: "maldivesCouple", category: "honeymoon" },
+  { id: 4, key: "northernAreas", category: "summer" },
+  { id: 5, key: "lahoreHeritage", category: "cultural" },
 ];
 
 export default function TourCategories() {
   const { language } = useLanguage();
 
-  const t =
-    homepageTranslations[language as LanguageCode] || homepageTranslations.en;
+  // Shared helper: normalizes locale codes and fills missing keys from English.
+  const t = getHomepageTranslation(language).tours;
 
   const [selectedCategory, setSelectedCategory] =
     useState<TourCategoryKey>("popular");
 
-  // Filter data according to selected category.
-  // Each tour carries a `title` that already follows the selected language,
-  // ready for the render block below.
+  // Tours in the selected category, with titles in the selected language.
   const filteredTours = tours
     .filter((tour) => tour.category === selectedCategory)
-    .map((tour) => ({
-      ...tour,
-      title:
-        t.tours.items[tour.key] || homepageTranslations.en.tours.items[tour.key],
-    }));
+    .map((tour) => ({ ...tour, title: t.items[tour.key] }));
 
   return (
-    <div>
+    <div dir={getDirection(language)} className="text-start">
       {/* Categories */}
       <div
+        role="group"
+        aria-label={t.categoriesAria}
         className="flex flex-wrap gap-2 sm:gap-3 mb-10"
-        aria-label={t.tours.categoriesAria}
       >
-        {categories.map((category) => (
-          <button
-            key={category.id}
-            onClick={() => setSelectedCategory(category.key)}
-            className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm transition cursor-pointer
-              
-              ${
-                selectedCategory === category.key
-                  ? "bg-[#0F91D5] text-white"
-                  : "bg-gray-200 text-black"
-              }
-            `}
-          >
-            {t.tours.categories[category.key] ||
-              homepageTranslations.en.tours.categories[category.key]}
-          </button>
-        ))}
+        {categories.map((category) => {
+          const active = selectedCategory === category.key;
+
+          return (
+            <button
+              key={category.id}
+              type="button"
+              aria-pressed={active}
+              onClick={() => setSelectedCategory(category.key)}
+              className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm transition cursor-pointer ${
+                active ? "bg-[#0F91D5] text-white" : "bg-gray-200 text-black"
+              }`}
+            >
+              {t.categories[category.key]}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Render Data */}
-      
+      {/* Tours in the selected category */}
+      <ul className="flex flex-wrap gap-3">
+        {filteredTours.map((tour) => (
+          <li
+            key={tour.id}
+            className="bg-white rounded-xl shadow px-4 py-3 text-sm font-medium text-gray-800"
+          >
+            {tour.title}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
