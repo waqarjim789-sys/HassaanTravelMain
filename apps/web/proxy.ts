@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import {
+  DEFAULT_LOCALE,
   isSupportedLocale,
   localeForCountry,
   LOCALE_COOKIE,
@@ -13,6 +14,21 @@ import {
  * (read in app/layout.tsx). Keep the name in sync with layout.tsx.
  */
 export const LOCALE_HEADER = "x-ht-locale";
+
+/**
+ * Search engines and link-preview bots. They get the site default (nl),
+ * exactly what any visitor without cookie / browser / region signal gets.
+ * Without this, Googlebot (crawling from the US) receives English only.
+ * Explicit names on purpose: a bare "bot" match would also catch phone
+ * models such as "Cubot".
+ * Long-term fix: per-language URLs (/nl, /en, …) with hreflang.
+ */
+const CRAWLER_PATTERN =
+  /(googlebot|google-inspectiontool|googleother|storebot-google|adsbot-google|mediapartners-google|bingbot|bingpreview|duckduckbot|yandexbot|baiduspider|applebot|slurp|facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegrambot|discordbot|slackbot|petalbot|ahrefsbot|semrushbot)/i;
+
+function isCrawler(userAgent: string | null): boolean {
+  return !!userAgent && CRAWLER_PATTERN.test(userAgent);
+}
 
 /** "nl-NL" / "nl_BE" / "NL" -> "nl"; unsupported -> null. */
 function toLocale(value: string | null | undefined): Locale | null {
@@ -45,22 +61,33 @@ function localeFromAcceptLanguage(header: string | null): Locale | null {
   return null;
 }
 
+/**
+ * Detection priority (as agreed in the i18n plan):
+ * crawler → saved cookie → browser language → region (IP) → default (layout)
+ */
 export function proxy(request: NextRequest) {
+  const crawler = isCrawler(request.headers.get("user-agent"));
+
   // 1. Respect the user's saved choice (only if it is a supported value).
-  const savedLocale = toLocale(request.cookies.get(LOCALE_COOKIE)?.value);
-
-  // 2. First visit: region from Vercel, persisted like before.
-  const regionLocale = savedLocale
+  const savedLocale = crawler
     ? null
-    : localeForCountry(request.headers.get("x-vercel-ip-country"));
+    : toLocale(request.cookies.get(LOCALE_COOKIE)?.value);
 
-  // 3. Fallback: browser language. Not persisted (same as the client logic).
+  // 2. Browser language. Not persisted (same as the client logic).
   const browserLocale =
-    savedLocale || regionLocale
+    crawler || savedLocale
       ? null
       : localeFromAcceptLanguage(request.headers.get("accept-language"));
 
-  const resolvedLocale = savedLocale ?? regionLocale ?? browserLocale;
+  // 3. Region from Vercel, persisted as before.
+  const regionLocale =
+    crawler || savedLocale || browserLocale
+      ? null
+      : localeForCountry(request.headers.get("x-vercel-ip-country"));
+
+  const resolvedLocale = crawler
+    ? DEFAULT_LOCALE
+    : savedLocale ?? browserLocale ?? regionLocale;
 
   // Pass the decision to this same request's server render, so the very
   // first page is already in the right language and direction.
@@ -75,6 +102,7 @@ export function proxy(request: NextRequest) {
     request: { headers: requestHeaders },
   });
 
+  // Crawlers never reach this branch: regionLocale is null for them.
   if (regionLocale) {
     response.cookies.set(LOCALE_COOKIE, regionLocale, {
       maxAge: LOCALE_COOKIE_MAX_AGE,

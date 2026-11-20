@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Plane, Bed, ScrollText } from "lucide-react";
 import { MdOutlineSupportAgent } from "react-icons/md";
-import Link from "next/link"; 
+import Link from "next/link";
 import Testimonials from "./Testimonials";
 import SideIconDesc from "./SideIconDesc";
 import BookingSearchForm from "../layout/home/BookingSearchForm";
@@ -12,9 +12,6 @@ import LuxurayAccommodation from "../layout/home/LuxurayAccommodation";
 import CenterIconHeadingDesc from "./CenterIconHeadingDesc";
 import Map from "./Map";
 import PopularTourPackages from "@/components/layout/home/PopularTourPackages";
-
-// INTEGRATED VISA SERVICE IMPORTS
-import Services from "@/components/layout/visas/Services";
 import MutipleImageRightText from "@/components/ui/MutipleImageRightText";
 import { useLanguage } from "../LanguageProvider";
 import { getHomepageTranslation } from "../../translations/homepage";
@@ -30,6 +27,9 @@ const imageData = [
 export default function HomeMain() {
   const { language } = useLanguage();
   const t = getHomepageTranslation(language);
+
+  // All visa-section copy comes from homepage.ts, so content fixes there
+  // (e.g. no approval guarantees, real support hours) apply automatically.
   const visaSolution = {
     head: (
       <>
@@ -50,13 +50,14 @@ export default function HomeMain() {
     <main dir={getDirection(language)} className="w-full text-gray-800">
       {/* ================= HERO SECTION ================= */}
       <section className="relative flex flex-col items-center justify-center text-center text-white overflow-hidden min-h-150 md:min-h-170 pb-16">
-        {/* VIDEO */}
+        {/* VIDEO (decorative) */}
         <video
           autoPlay
           loop
           muted
           playsInline
           preload="metadata"
+          aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover"
         >
           <source src="/assets/videos/hero.mp4" type="video/mp4" />
@@ -67,7 +68,7 @@ export default function HomeMain() {
 
         {/* CONTENT */}
         <div className="relative z-10 w-full max-w-5xl mx-auto px-4 pt-24 md:pt-28 -mt-8 sm:-mt-12 md:-mt-16">
-          {/* BADGE (Updated background to white, text to black, and altered text to Accredited) */}
+          {/* BADGE */}
           <div className="inline-flex items-center gap-2 border border-white/30 bg-white px-4 py-2 rounded-full mb-5 text-xs sm:text-sm text-black font-medium shadow-sm">
             <Image
               src="/assets/home/partners/iata.webp"
@@ -96,24 +97,27 @@ export default function HomeMain() {
             {t.heroSubtitle}
           </p>
         </div>
-        
+
         {/* SEARCH BLOCK */}
         <BookingSearchForm />
       </section>
 
-      {/* ================= SERVICES SECTION (REPLACED POPULAR PACKAGES) ================= */}
+      {/* ================= SERVICES SECTION ================= */}
       <PopularTourPackages />
+
       {/* ================= MULTIPLE IMAGES SECTION ================= */}
       <MutipleImageRightText imageData={imageData} />
 
       {/* ================= EXPERT VISA SOLUTIONS ================= */}
       <section className="relative py-8 sm:py-12 px-4 sm:px-8 md:px-16 overflow-hidden">
-        {/* BACKGROUND IMAGE (LAZY LOAD) */}
-        <img
+        {/* Decorative background image */}
+        <Image
           src="/assets/bgimage/h2.webp"
-          loading="lazy"
           alt=""
           aria-hidden="true"
+          fill
+          sizes="100vw"
+          loading="lazy"
           className="absolute inset-0 w-full h-full object-cover opacity-[0.18] z-0"
         />
 
@@ -139,6 +143,7 @@ export default function HomeMain() {
       <section>
         <Testimonials />
       </section>
+
       {/* ================= CTA SECTION ================= */}
       <section
         className="relative py-12 sm:py-20 px-4 text-center text-white bg-cover bg-center bg-no-repeat overflow-hidden"

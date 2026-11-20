@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useLanguage } from "@/components/LanguageProvider";
+import { getDirection } from "@/i18n";
 import {
   getHomepageTranslation,
   type ReviewKey,
@@ -15,10 +17,16 @@ type Review = {
   name: string;
   avatarLetter: string;
   avatarBg: string;
+  /**
+   * ⚠️ Static value — does not update over time.
+   * TODO: replace with the real Google review date and calculate the
+   * relative time automatically (owner to supply the dates).
+   */
   monthsAgo: number;
   rating: number;
 };
 
+/** ⚠️ Static — verify against the current Google Business profile. */
 const TOTAL_REVIEWS = 243;
 
 const reviewsData: Review[] = [
@@ -62,13 +70,16 @@ const Testimonials = ({ bgImage }: Props) => {
   return (
     <section
       className="relative py-12 sm:py-20 px-4 sm:px-8 md:px-16 text-center overflow-hidden bg-gray-50/50"
-      dir={language === "ar" || language === "ur" ? "rtl" : "ltr"}
+      dir={getDirection(language)}
     >
       {bgImage && (
-        <img
+        <Image
           src={bgImage}
-          loading="lazy"
           alt=""
+          aria-hidden="true"
+          fill
+          sizes="100vw"
+          loading="lazy"
           className="absolute inset-0 w-full h-full object-cover opacity-25"
         />
       )}
@@ -83,15 +94,13 @@ const Testimonials = ({ bgImage }: Props) => {
             {tt.ratingValue}
           </span>
 
-          <div className="flex text-amber-400 text-sm">
+          {/* Decorative: the numeric rating is shown right before it */}
+          <div aria-hidden="true" className="flex text-amber-400 text-sm">
             {"★".repeat(5)}
           </div>
 
           <span className="text-xs text-gray-500 font-medium">
-            {tt.reviewsCount.replace(
-              "{count}",
-              String(TOTAL_REVIEWS)
-            )}
+            {tt.reviewsCount.replace("{count}", String(TOTAL_REVIEWS))}
           </span>
         </div>
 
@@ -99,16 +108,17 @@ const Testimonials = ({ bgImage }: Props) => {
           {reviewsData.map((review) => (
             <div
               key={review.key}
-              className="bg-white rounded-2xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 flex flex-col text-left transition-all duration-300 hover:shadow-[0_8px_30px_rgb(15,145,213,0.1)] hover:-translate-y-1"
+              className="bg-white rounded-2xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 flex flex-col text-start transition-all duration-300 hover:shadow-[0_8px_30px_rgb(15,145,213,0.1)] hover:-translate-y-1"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div
+                  aria-hidden="true"
                   className={`w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-lg ${review.avatarBg} shadow-sm`}
                 >
                   {review.avatarLetter}
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <h3 className="font-bold text-gray-900 text-base leading-tight">
                     {review.name}
                   </h3>
@@ -119,7 +129,11 @@ const Testimonials = ({ bgImage }: Props) => {
                 </div>
               </div>
 
-              <div className="flex text-amber-400 text-lg mb-3">
+              <div
+                role="img"
+                aria-label={`${review.rating}/5`}
+                className="flex text-amber-400 text-lg mb-3"
+              >
                 {"★".repeat(review.rating)}
               </div>
 
@@ -138,8 +152,10 @@ const Testimonials = ({ bgImage }: Props) => {
         >
           <span>{tt.cta}</span>
 
+          {/* Arrow points in reading direction: flipped for RTL */}
           <svg
-            className="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
+            aria-hidden="true"
+            className="w-4 h-4 transform transition-transform group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

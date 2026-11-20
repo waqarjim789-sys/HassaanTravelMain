@@ -44,6 +44,16 @@ const normalize = (value: string) =>
   value.trim().toLowerCase().replace(/\s+/g, " ");
 
 /**
+ * Old English card titles that were renamed in homepage.ts.
+ * A parent that still passes the old wording must keep resolving to the
+ * current translation; otherwise the outdated parent text would be shown.
+ * (Nov 2026: "24/7 Support" was replaced by "Customer Support".)
+ */
+const LEGACY_ICON_TITLES: Record<string, string> = {
+  "24/7 support": "support247",
+};
+
+/**
  * Reverse index: English heading / card title -> translation key.
  * Lets a parent that still passes plain English strings render translated,
  * without changing that parent.
@@ -56,7 +66,7 @@ const buildEnglishIndex = () => {
     sections[normalize(value.head)] = key;
   });
 
-  const icons: Record<string, string> = {};
+  const icons: Record<string, string> = { ...LEGACY_ICON_TITLES };
   Object.entries(en.sideIcons).forEach(([key, value]) => {
     icons[normalize(value.title)] = key;
   });
@@ -104,7 +114,6 @@ const SideIconDesc = ({ data }: SideIconDescProps) => {
   };
 
   return (
-    // Background image aur style tag hata diya hai, ab yeh clean background hai
     <section
       dir={getDirection(language)}
       className="py-12 sm:py-20 px-4 sm:px-8 md:px-16 relative container mx-auto"
@@ -124,11 +133,13 @@ const SideIconDesc = ({ data }: SideIconDescProps) => {
           return (
             <div
               key={ind}
-              // Cards ka background transparent se badal kar solid white (bg-white) ya shadow smooth kar diya hai
-              className="bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 shadow-md hover:shadow-lg transition flex-1 "
+              className="bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 shadow-md hover:shadow-lg transition flex-1"
             >
-              {/* ICON */}
-              <div className="w-12 h-12 sm:w-14 sm:h-14 mb-4 flex items-center justify-center rounded-xl bg-[#0F91D5] text-white text-lg sm:text-xl shadow">
+              {/* ICON (decorative) */}
+              <div
+                aria-hidden="true"
+                className="w-12 h-12 sm:w-14 sm:h-14 mb-4 flex items-center justify-center rounded-xl bg-[#0F91D5] text-white text-lg sm:text-xl shadow"
+              >
                 {item.icon}
               </div>
 
@@ -143,8 +154,6 @@ const SideIconDesc = ({ data }: SideIconDescProps) => {
           );
         })}
       </div>
-
-      {/* PARTNERS */}
     </section>
   );
 };

@@ -1,6 +1,11 @@
 // =======================================================
 // HOMEPAGE TRANSLATIONS
 // Languages: en | nl | de | fr | it | es | ar | ur
+//
+// Content review 20 Nov 2026:
+// - Removed "guaranteed approval" claims (visa decisions belong to the embassy)
+// - Replaced 24/7 claims with actual Mon–Sat availability
+// - Trust badge years aligned with hero badge (17+, since 2009)
 // =======================================================
 
 export type LanguageCode =
@@ -436,12 +441,12 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
         desc: "Fully Authorized Agency",
       },
       support: {
-        title: "Emergency Support",
-        desc: "Available 24/7",
+        title: "Customer Support",
+        desc: "Mon–Sat by phone & WhatsApp",
       },
       trusted: {
         title: "Trusted by Travelers",
-        desc: "15+ Years Excellence",
+        desc: "17+ Years Excellence",
       },
       premium: {
         title: "Premium Service",
@@ -455,7 +460,7 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       visaSolutions: {
         head: "Expert Visa Solutions",
         details:
-          "Streamlined processing with guaranteed approval for all destinations",
+          "Complete application support and careful document checks for every destination. Final decisions are made by the embassy.",
       },
       airlinePartners: {
         head: "Trusted Airline Partners",
@@ -478,11 +483,13 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       visaProcessing: {
         title: "Visa Processing",
         desc:
-          "Fast and reliable visa services ensuring smooth approval for travelers.",
+          "Fast and reliable visa services with full support throughout your application.",
       },
+      // Key name kept for compatibility with existing components.
       support247: {
-        title: "24/7 Support",
-        desc: "Round-the-clock customer support for all your travel needs.",
+        title: "Customer Support",
+        desc:
+          "Reach our team by phone, WhatsApp or email, Monday to Saturday, for all your travel questions.",
       },
     },
 
@@ -509,7 +516,7 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       saudiVisa: {
         name: "Saudi Visa",
         description:
-          "Get your Saudi visa with a smooth application process, professional assistance, and timely approvals.",
+          "Get your Saudi visa with a smooth application process, professional assistance, and timely processing.",
       },
       umrahPackage: {
         name: "Umrah Package",
@@ -798,12 +805,12 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
         desc: "Volledig erkend reisbureau",
       },
       support: {
-        title: "Noodhulp",
-        desc: "24/7 bereikbaar",
+        title: "Klantenservice",
+        desc: "Ma–za via telefoon & WhatsApp",
       },
       trusted: {
         title: "Vertrouwd door reizigers",
-        desc: "15+ jaar ervaring",
+        desc: "17+ jaar ervaring",
       },
       premium: {
         title: "Premium service",
@@ -817,7 +824,7 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       visaSolutions: {
         head: "Expert visumoplossingen",
         details:
-          "Gestroomlijnde afhandeling met gegarandeerde goedkeuring voor alle bestemmingen",
+          "Volledige ondersteuning bij uw aanvraag en zorgvuldige controle van uw documenten, voor elke bestemming. De ambassade neemt het definitieve besluit.",
       },
       airlinePartners: {
         head: "Vertrouwde luchtvaartpartners",
@@ -839,12 +846,13 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       },
       visaProcessing: {
         title: "Visumaanvragen",
-        desc: "Snelle en betrouwbare visumservice voor een vlotte goedkeuring.",
+        desc:
+          "Snelle en betrouwbare visumservice met volledige begeleiding bij uw aanvraag.",
       },
       support247: {
-        title: "24/7 ondersteuning",
+        title: "Klantenservice",
         desc:
-          "Klantenservice die dag en nacht klaarstaat voor al uw reisvragen.",
+          "Bereik ons team van maandag t/m zaterdag via telefoon, WhatsApp of e-mail voor al uw reisvragen.",
       },
     },
 
@@ -871,7 +879,7 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       saudiVisa: {
         name: "Saudi Visum",
         description:
-          "Vraag uw Saoedische visum aan met een soepel aanvraagproces, professionele ondersteuning en tijdige goedkeuring.",
+          "Vraag uw Saoedische visum aan met een soepel aanvraagproces, professionele ondersteuning en tijdige afhandeling.",
       },
       umrahPackage: {
         name: "Umrah Pakket",
@@ -1163,12 +1171,12 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
         desc: "Voll akkreditiertes Reisebüro",
       },
       support: {
-        title: "Notfall-Support",
-        desc: "Rund um die Uhr erreichbar",
+        title: "Kundenservice",
+        desc: "Mo–Sa per Telefon & WhatsApp",
       },
       trusted: {
         title: "Von Reisenden empfohlen",
-        desc: "Über 15 Jahre Erfahrung",
+        desc: "Über 17 Jahre Erfahrung",
       },
       premium: {
         title: "Premium-Service",
@@ -1182,7 +1190,7 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       visaSolutions: {
         head: "Experten-Visa-Lösungen",
         details:
-          "Optimierte Bearbeitung mit garantierter Genehmigung für alle Reiseziele",
+          "Umfassende Antragsunterstützung und sorgfältige Dokumentenprüfung für jedes Reiseziel. Die endgültige Entscheidung trifft die Botschaft.",
       },
       airlinePartners: {
         head: "Vertrauenswürdige Airline-Partner",
@@ -1205,11 +1213,12 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       visaProcessing: {
         title: "Visabearbeitung",
         desc:
-          "Schneller und zuverlässiger Visaservice für eine reibungslose Genehmigung.",
+          "Schneller und zuverlässiger Visaservice mit umfassender Unterstützung bei Ihrem Antrag.",
       },
       support247: {
-        title: "24/7 Support",
-        desc: "Rund um die Uhr Kundenservice für alle Ihre Reisefragen.",
+        title: "Kundenservice",
+        desc:
+          "Erreichen Sie unser Team von Montag bis Samstag per Telefon, WhatsApp oder E-Mail für alle Ihre Reisefragen.",
       },
     },
 
@@ -1236,7 +1245,7 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       saudiVisa: {
         name: "Saudi Visum",
         description:
-          "Erhalten Sie Ihr Saudi-Visum mit einem reibungslosen Antragsverfahren, professioneller Unterstützung und pünktlicher Genehmigung.",
+          "Erhalten Sie Ihr Saudi-Visum mit einem reibungslosen Antragsverfahren, professioneller Unterstützung und zügiger Bearbeitung.",
       },
       umrahPackage: {
         name: "Umrah Paket",
@@ -1528,12 +1537,12 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
         desc: "Agence pleinement agréée",
       },
       support: {
-        title: "Assistance d'urgence",
-        desc: "Disponible 24h/24 et 7j/7",
+        title: "Service client",
+        desc: "Du lundi au samedi, par téléphone et WhatsApp",
       },
       trusted: {
         title: "La confiance des voyageurs",
-        desc: "Plus de 15 ans d'expérience",
+        desc: "Plus de 17 ans d'expérience",
       },
       premium: {
         title: "Service premium",
@@ -1547,7 +1556,7 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       visaSolutions: {
         head: "Solutions visa expertes",
         details:
-          "Un traitement simplifié avec approbation garantie pour toutes les destinations",
+          "Un accompagnement complet et une vérification minutieuse de vos documents, pour chaque destination. La décision finale revient à l'ambassade.",
       },
       airlinePartners: {
         head: "Compagnies aériennes partenaires de confiance",
@@ -1570,12 +1579,12 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       visaProcessing: {
         title: "Traitement des visas",
         desc:
-          "Un service de visa rapide et fiable pour une approbation sans accroc.",
+          "Un service de visa rapide et fiable, avec un accompagnement complet pour votre demande.",
       },
       support247: {
-        title: "Assistance 24h/24 et 7j/7",
+        title: "Service client",
         desc:
-          "Un service client disponible jour et nuit pour tous vos besoins de voyage.",
+          "Contactez notre équipe du lundi au samedi par téléphone, WhatsApp ou e-mail pour toutes vos questions de voyage.",
       },
     },
 
@@ -1893,12 +1902,12 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
         desc: "Agenzia pienamente autorizzata",
       },
       support: {
-        title: "Assistenza d'emergenza",
-        desc: "Disponibile 24 ore su 24, 7 giorni su 7",
+        title: "Assistenza clienti",
+        desc: "Lun–sab, via telefono e WhatsApp",
       },
       trusted: {
         title: "Scelta dai viaggiatori",
-        desc: "Oltre 15 anni di esperienza",
+        desc: "Oltre 17 anni di esperienza",
       },
       premium: {
         title: "Servizio premium",
@@ -1912,7 +1921,7 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       visaSolutions: {
         head: "Soluzioni visti professionali",
         details:
-          "Procedure semplificate con approvazione garantita per tutte le destinazioni",
+          "Assistenza completa alla richiesta e verifica accurata dei documenti per ogni destinazione. La decisione finale spetta all'ambasciata.",
       },
       airlinePartners: {
         head: "Compagnie aeree partner di fiducia",
@@ -1935,12 +1944,12 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       visaProcessing: {
         title: "Gestione dei visti",
         desc:
-          "Servizio visti rapido e affidabile per un'approvazione senza intoppi.",
+          "Servizio visti rapido e affidabile, con assistenza completa per la tua richiesta.",
       },
       support247: {
-        title: "Assistenza 24 ore su 24",
+        title: "Assistenza clienti",
         desc:
-          "Supporto clienti sempre disponibile per ogni esigenza di viaggio.",
+          "Contatta il nostro team dal lunedì al sabato via telefono, WhatsApp o e-mail per ogni domanda sul tuo viaggio.",
       },
     },
 
@@ -1967,7 +1976,7 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       saudiVisa: {
         name: "Visto Arabia Saudita",
         description:
-          "Ottieni il tuo visto saudita con una procedura semplice, assistenza professionale e approvazioni puntuali.",
+          "Ottieni il tuo visto saudita con una procedura semplice, assistenza professionale e tempi di lavorazione rapidi.",
       },
       umrahPackage: {
         name: "Pacchetto Umrah",
@@ -2258,12 +2267,12 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
         desc: "Agencia totalmente autorizada",
       },
       support: {
-        title: "Asistencia de emergencia",
-        desc: "Disponible 24/7",
+        title: "Atención al cliente",
+        desc: "Lun–sáb, por teléfono y WhatsApp",
       },
       trusted: {
         title: "La confianza de los viajeros",
-        desc: "Más de 15 años de experiencia",
+        desc: "Más de 17 años de experiencia",
       },
       premium: {
         title: "Servicio premium",
@@ -2277,7 +2286,7 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       visaSolutions: {
         head: "Soluciones expertas de visado",
         details:
-          "Tramitación ágil con aprobación garantizada para todos los destinos",
+          "Apoyo completo en tu solicitud y revisión cuidadosa de la documentación para cada destino. La decisión final corresponde a la embajada.",
       },
       airlinePartners: {
         head: "Aerolíneas asociadas de confianza",
@@ -2300,12 +2309,12 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       visaProcessing: {
         title: "Tramitación de visados",
         desc:
-          "Servicio de visados rápido y fiable para una aprobación sin contratiempos.",
+          "Servicio de visados rápido y fiable, con apoyo completo durante tu solicitud.",
       },
       support247: {
-        title: "Asistencia 24/7",
+        title: "Atención al cliente",
         desc:
-          "Atención al cliente las 24 horas para todas tus necesidades de viaje.",
+          "Contacta con nuestro equipo de lunes a sábado por teléfono, WhatsApp o correo para todas tus dudas de viaje.",
       },
     },
 
@@ -2332,7 +2341,7 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       saudiVisa: {
         name: "Visado Arabia Saudí",
         description:
-          "Consigue tu visado saudí con un proceso de solicitud sencillo, asistencia profesional y aprobaciones puntuales.",
+          "Consigue tu visado saudí con un proceso de solicitud sencillo, asistencia profesional y tramitación puntual.",
       },
       umrahPackage: {
         name: "Paquete Umrah",
@@ -2620,12 +2629,12 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
         desc: "وكالة مرخّصة بالكامل",
       },
       support: {
-        title: "دعم الطوارئ",
-        desc: "متاح على مدار الساعة",
+        title: "خدمة العملاء",
+        desc: "من الاثنين إلى السبت عبر الهاتف وواتساب",
       },
       trusted: {
         title: "ثقة المسافرين",
-        desc: "أكثر من 15 عاماً من التميّز",
+        desc: "أكثر من 17 عاماً من التميّز",
       },
       premium: {
         title: "خدمة مميزة",
@@ -2638,7 +2647,8 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
     sideSections: {
       visaSolutions: {
         head: "حلول تأشيرات احترافية",
-        details: "إجراءات مبسّطة مع ضمان الموافقة لجميع الوجهات",
+        details:
+          "دعم كامل في تقديم الطلب ومراجعة دقيقة للمستندات لكل وجهة. القرار النهائي يعود للسفارة.",
       },
       airlinePartners: {
         head: "شركات طيران شريكة موثوقة",
@@ -2659,11 +2669,12 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       },
       visaProcessing: {
         title: "معالجة التأشيرات",
-        desc: "خدمة تأشيرات سريعة وموثوقة تضمن موافقة سلسة للمسافرين.",
+        desc: "خدمة تأشيرات سريعة وموثوقة مع دعم كامل طوال مراحل طلبك.",
       },
       support247: {
-        title: "دعم على مدار الساعة",
-        desc: "دعم عملاء متواصل على مدار الساعة لتلبية جميع احتياجات سفرك.",
+        title: "خدمة العملاء",
+        desc:
+          "تواصل مع فريقنا من الاثنين إلى السبت عبر الهاتف أو واتساب أو البريد الإلكتروني لجميع استفسارات سفرك.",
       },
     },
 
@@ -2690,7 +2701,7 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       saudiVisa: {
         name: "التأشيرة السعودية",
         description:
-          "احصل على تأشيرتك السعودية بإجراءات سلسة ومساعدة احترافية وموافقات في الوقت المناسب.",
+          "احصل على تأشيرتك السعودية بإجراءات سلسة ومساعدة احترافية ومعالجة في الوقت المناسب.",
       },
       umrahPackage: {
         name: "باقة العمرة",
@@ -2973,12 +2984,12 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
         desc: "مکمل مجاز ایجنسی",
       },
       support: {
-        title: "ہنگامی معاونت",
-        desc: "24/7 دستیاب",
+        title: "کسٹمر سپورٹ",
+        desc: "پیر تا ہفتہ، فون اور واٹس ایپ پر",
       },
       trusted: {
         title: "مسافروں کا اعتماد",
-        desc: "15+ سال کا تجربہ",
+        desc: "17+ سال کا تجربہ",
       },
       premium: {
         title: "پریمیم سروس",
@@ -2991,7 +3002,8 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
     sideSections: {
       visaSolutions: {
         head: "ماہرانہ ویزا حل",
-        details: "تمام منازل کے لیے آسان کارروائی اور یقینی منظوری",
+        details:
+          "ہر منزل کے لیے درخواست میں مکمل معاونت اور دستاویزات کی محتاط جانچ۔ حتمی فیصلہ سفارت خانہ کرتا ہے۔",
       },
       airlinePartners: {
         head: "قابلِ اعتماد ایئرلائن پارٹنرز",
@@ -3013,11 +3025,12 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       visaProcessing: {
         title: "ویزا پروسیسنگ",
         desc:
-          "تیز اور قابلِ اعتماد ویزا سروس جو مسافروں کے لیے آسان منظوری یقینی بناتی ہے۔",
+          "تیز اور قابلِ اعتماد ویزا سروس، درخواست کے ہر مرحلے پر مکمل معاونت کے ساتھ۔",
       },
       support247: {
-        title: "24/7 معاونت",
-        desc: "آپ کی تمام سفری ضروریات کے لیے چوبیس گھنٹے کسٹمر سپورٹ۔",
+        title: "کسٹمر سپورٹ",
+        desc:
+          "اپنے تمام سفری سوالات کے لیے پیر سے ہفتہ تک فون، واٹس ایپ یا ای میل پر ہماری ٹیم سے رابطہ کریں۔",
       },
     },
 
@@ -3044,7 +3057,7 @@ const baseHomepageTranslations: Record<LanguageCode, Omit<HomepageTranslation, "
       saudiVisa: {
         name: "سعودی ویزا",
         description:
-          "آسان درخواستی عمل، پیشہ ورانہ معاونت اور بروقت منظوری کے ساتھ اپنا سعودی ویزا حاصل کریں۔",
+          "آسان درخواستی عمل، پیشہ ورانہ معاونت اور بروقت کارروائی کے ساتھ اپنا سعودی ویزا حاصل کریں۔",
       },
       umrahPackage: {
         name: "عمرہ پیکیج",

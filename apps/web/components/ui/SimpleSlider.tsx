@@ -8,7 +8,7 @@ import { createTranslator, interpolate } from "@/lib/createTranslator";
 import { getHomepageTranslation } from "@/translations/homepage";
 
 // Heading + description already live in homepage.ts (sideSections.airlinePartners).
-// Only the logo alt text needs its own small dictionary.
+// Only the fallback logo alt text needs its own small dictionary.
 const getSliderTranslation = createTranslator(
   { logoAlt: "Airline partner {number}" } as const,
   {
@@ -22,7 +22,18 @@ const getSliderTranslation = createTranslator(
   }
 );
 
-const airlines = [
+type Airline = {
+  src: string;
+  /** Matches the file name (p1, p2, …) */
+  number: number;
+  /**
+   * Real airline name, e.g. "Emirates". Used as alt text when set.
+   * Airline names are never translated. Leave empty until confirmed.
+   */
+  name?: string;
+};
+
+const airlines: Airline[] = [
   { src: "/assets/home/partners/p1.webp", number: 1 },
   { src: "/assets/home/partners/p2.webp", number: 2 },
   { src: "/assets/home/partners/p3.webp", number: 3 },
@@ -50,17 +61,22 @@ const airlines = [
   { src: "/assets/home/partners/p25.webp", number: 25 },
   { src: "/assets/home/partners/p26.webp", number: 26 },
   { src: "/assets/home/partners/p27.webp", number: 27 },
-  // Duplicate of p27 kept as in the original list (owner to confirm).
-  { src: "/assets/home/partners/p27.webp", number: 27 },
   { src: "/assets/home/partners/p28.webp", number: 28 },
   { src: "/assets/home/partners/p29.webp", number: 29 },
   { src: "/assets/home/partners/p30.webp", number: 30 },
+  { src: "/assets/home/partners/p31.webp", number: 31, name: "British Airways" },
   { src: "/assets/home/partners/p32.webp", number: 32 },
   { src: "/assets/home/partners/p33.webp", number: 33 },
 ];
 
 // Duplicate for seamless loop
 const allAirlines = [...airlines, ...airlines];
+
+/** Auto-scroll speed in pixels per second (same on 60 Hz and 120 Hz screens). */
+const SPEED_PX_PER_SECOND = 120;
+
+/** Cap per-frame time so returning to a background tab doesn't cause a jump. */
+const MAX_FRAME_MS = 64;
 
 export default function AirlineSlider() {
   const { language } = useLanguage();
@@ -72,10 +88,10 @@ export default function AirlineSlider() {
 
   const trackRef = useRef<HTMLDivElement>(null);
   const positionRef = useRef(0);          // current x offset
-  const speedRef = useRef(2);             // px per frame (auto-scroll speed)
   const rafRef = useRef<number>(0);
   const isPausedRef = useRef(false);
   const isDraggingRef = useRef(false);
+  const reduceMotionRef = useRef(false);
   const dragStartXRef = useRef(0);
   const dragStartPosRef = useRef(0);
   const singleWidthRef = useRef(0);
@@ -88,9 +104,26 @@ export default function AirlineSlider() {
     // Width of one set = total / 2 (since we duplicated)
     singleWidthRef.current = track.scrollWidth / 2;
 
-    function animate() {
-      if (!isPausedRef.current && !isDraggingRef.current) {
-        positionRef.current += speedRef.current;
+    // Respect the OS "reduce motion" setting; dragging still works.
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    reduceMotionRef.current = motionQuery.matches;
+    const onMotionChange = (event: MediaQueryListEvent) => {
+      reduceMotionRef.current = event.matches;
+    };
+    motionQuery.addEventListener("change", onMotionChange);
+
+    let lastTime: number | null = null;
+
+    function animate(now: number) {
+      const elapsed = lastTime === null ? 0 : Math.min(now - lastTime, MAX_FRAME_MS);
+      lastTime = now;
+
+      if (
+        !isPausedRef.current &&
+        !isDraggingRef.current &&
+        !reduceMotionRef.current
+      ) {
+        positionRef.current += (SPEED_PX_PER_SECOND * elapsed) / 1000;
 
         // Reset when first set scrolled past
         if (positionRef.current >= singleWidthRef.current) {
@@ -106,7 +139,11 @@ export default function AirlineSlider() {
     }
 
     rafRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafRef.current);
+
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      motionQuery.removeEventListener("change", onMotionChange);
+    };
   }, []);
 
   // ── MOUSE EVENTS ──────────────────────────────────────────
@@ -207,47 +244,57 @@ export default function AirlineSlider() {
               ref={trackRef}
               className="flex w-max items-center will-change-transform"
             >
-              {allAirlines.map((airline, i) => (
-                <div
-                  key={i}
-                  // The second copy only exists for the loop; hide it from screen readers.
-                  aria-hidden={i >= airlines.length ? true : undefined}
-                  className="
-                    mx-5
-                    flex
-                    h-28
-                    w-56
-                    items-center
-                    justify-center
-                    rounded-2xl
-                    bg-white
-                    shadow-md
-                    transition-all
-                    duration-300
-                    hover:-translate-y-2
-                    hover:shadow-xl
-                    hover:scale-105
-                    border
-                    border-gray-100
-                    flex-shrink-0
-                  "
-                >
-                  <Image
-                    src={airline.src}
-                    alt={interpolate(sliderText.logoAlt, { number: airline.number })}
-                    width={180}
-                    height={90}
-                    draggable={false}
+              {allAirlines.map((airline, i) => {
+                // The second copy only exists for the loop: hide it from
+                // screen readers and give it an empty alt so search engines
+                // and text readers don't count every logo twice.
+                const isLoopCopy = i >= airlines.length;
+                const alt = isLoopCopy
+                  ? ""
+                  : airline.name ??
+                    interpolate(sliderText.logoAlt, { number: airline.number });
+
+                return (
+                  <div
+                    key={i}
+                    aria-hidden={isLoopCopy ? true : undefined}
                     className="
-                      max-h-20
-                      max-w-[180px]
-                      object-contain
-                      pointer-events-none
-                      select-none
+                      mx-5
+                      flex
+                      h-28
+                      w-56
+                      items-center
+                      justify-center
+                      rounded-2xl
+                      bg-white
+                      shadow-md
+                      transition-all
+                      duration-300
+                      hover:-translate-y-2
+                      hover:shadow-xl
+                      hover:scale-105
+                      border
+                      border-gray-100
+                      flex-shrink-0
                     "
-                  />
-                </div>
-              ))}
+                  >
+                    <Image
+                      src={airline.src}
+                      alt={alt}
+                      width={180}
+                      height={90}
+                      draggable={false}
+                      className="
+                        max-h-20
+                        max-w-[180px]
+                        object-contain
+                        pointer-events-none
+                        select-none
+                      "
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
