@@ -8,7 +8,7 @@ import styles from "./HassaanAssistant.module.css";
 const PHONE = "31104857673"; // Preserved from the existing website widget.
 const TOPICS = ["Flights & prices", "Latest offers", "Holiday packages", "Umrah packages", "Visa assistance", "eSIM & connectivity", "Hotels & stays", "Change / cancel booking", "Custom travel quote"];
 const SYMBOLS = ["✈", "✦", "☀", "☾", "✓", "◎", "⌂", "↻", "◇"];
-const SESSION_KEY = "ht:assistant:nudges:v1";
+const SESSION_KEY = "ht:assistant:nudges:v2";
 
 export default function FloatingWhatsApp() {
   const { language } = useLanguage();
@@ -32,15 +32,18 @@ export default function FloatingWhatsApp() {
   useEffect(() => {
     try { count.current = Math.min(3, Math.max(0, Number(sessionStorage.getItem(SESSION_KEY)) || 0)); } catch { /* Private mode: memory fallback. */ }
     let elapsed = 0;
+    let hideAt = -1;
+    const schedule = [10, 20, 60];
     const timer = window.setInterval(() => {
-      if (document.hidden || stopped.current || count.current >= 3) return;
+      if (document.hidden || stopped.current) return;
       elapsed += 1;
-      if (elapsed % 30 === 0) {
+      if (count.current < schedule.length && elapsed >= (schedule[count.current] ?? Infinity)) {
         count.current += 1;
         try { sessionStorage.setItem(SESSION_KEY, String(count.current)); } catch { /* Optional storage. */ }
+        hideAt = elapsed + 3;
         setNudge(true);
       }
-      if (elapsed % 30 === 8) setNudge(false);
+      if (elapsed >= hideAt && hideAt >= 0) { setNudge(false); hideAt = -1; }
     }, 1000);
     return () => window.clearInterval(timer);
   }, []);
@@ -76,6 +79,7 @@ export default function FloatingWhatsApp() {
 
   return <div className={styles.widget} dir={rtl ? "rtl" : "ltr"} lang={language}>
     {nudge && !open && <div className={styles.nudge} role="status">
+      <span className={styles.toastIcon} aria-hidden="true">✦</span>
       <button onClick={show}>{t.nudge} <span aria-hidden="true">↗</span></button>
       <button className={styles.dismiss} onClick={dismiss} aria-label={t.close}>×</button>
     </div>}
