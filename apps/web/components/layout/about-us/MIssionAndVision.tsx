@@ -1,17 +1,17 @@
 "use client";
 
+import Image from "next/image";
 import SideIconDesc from "@/components/ui/SideIconDesc";
 import { Eye, Target } from "lucide-react";
 import React from "react";
 import { useLanguage } from "@/components/LanguageProvider";
+import { resolveLocale } from "@/lib/createTranslator";
 import { aboutUsTranslations } from "@/translations/aboutUs";
 
 const MIssionAndVision = () => {
   const { language } = useLanguage();
-
-  const t =
-    aboutUsTranslations[language as keyof typeof aboutUsTranslations] ||
-    aboutUsTranslations.en;
+  const locale = resolveLocale(language);
+  const t = aboutUsTranslations[locale] ?? aboutUsTranslations.en;
 
   const data = {
     head: (
@@ -39,10 +39,14 @@ const MIssionAndVision = () => {
   return (
     <section className="relative w-full py-12 sm:py-20 overflow-hidden flex items-center justify-center bg-white">
 
-      <img
+      {/* Decorative background image */}
+      <Image
         src="/assets/about-us/3.webp"
-        loading="lazy"
         alt=""
+        aria-hidden="true"
+        fill
+        sizes="100vw"
+        loading="lazy"
         className="absolute inset-0 w-full h-full object-cover opacity-[0.18] pointer-events-none z-0"
       />
 

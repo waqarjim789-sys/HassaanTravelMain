@@ -17,6 +17,10 @@ import { useLanguage } from "../LanguageProvider";
 import { footerTranslations } from "../../translations/footer";
 import { getDirection, isSupportedLocale, FALLBACK_LOCALE } from "@/i18n";
 
+const LINKEDIN_URL = "https://www.linkedin.com/in/hassaan-travel-63567b3a6/";
+const HOTELS_URL = "https://www.ratehawk.com/journey/100-hotels/";
+const CONTACT_EMAIL = "info@hassaantravel.nl";
+
 type FooterTranslation = {
   [Key in keyof typeof footerTranslations.en]: string;
 };
@@ -37,6 +41,16 @@ function getFooterTranslation(language: string): FooterTranslation {
   }
 
   return result;
+}
+
+/**
+ * Keeps the end year of the copyright range current.
+ * "© 2009 – 2026 …" becomes "© 2009 – <this year> …" in every language,
+ * so the translations never need a yearly edit.
+ */
+function withCurrentYear(copyright: string): string {
+  const year = new Date().getFullYear();
+  return copyright.replace(/(\d{4})\s*[–-]\s*\d{4}/, `$1 – ${year}`);
 }
 
 
@@ -139,12 +153,15 @@ export default function Footer() {
 
 
               <li>
-                <Link
-                  href="/"
+                {/* External hotel booking partner */}
+                <a
+                  href={HOTELS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="hover:text-white transition-colors block py-0.5"
                 >
                   {t.hotels}
-                </Link>
+                </a>
               </li>
 
 
@@ -245,7 +262,10 @@ export default function Footer() {
                 className="flex items-start gap-3 hover:text-blue-400 transition-colors"
               >
 
-                <HiOutlineLocationMarker className="text-blue-400 text-lg mt-0.5 flex-shrink-0" />
+                <HiOutlineLocationMarker
+                  aria-hidden="true"
+                  className="text-blue-400 text-lg mt-0.5 flex-shrink-0"
+                />
 
                 <span dir="ltr">
                   Dordtselaan 67 D, 3081 BG, Rotterdam
@@ -256,14 +276,17 @@ export default function Footer() {
 
 
               <a
-                href="mailto:Info@hassaantravel.nl"
+                href={`mailto:${CONTACT_EMAIL}`}
                 className="flex items-center gap-3 hover:text-blue-400 transition-colors"
               >
 
-                <FiMail className="text-blue-400 text-lg flex-shrink-0" />
+                <FiMail
+                  aria-hidden="true"
+                  className="text-blue-400 text-lg flex-shrink-0"
+                />
 
                 <span dir="ltr" className="break-all">
-                  Info@hassaantravel.nl
+                  {CONTACT_EMAIL}
                 </span>
 
               </a>
@@ -276,7 +299,10 @@ export default function Footer() {
                 className="flex items-center gap-3 hover:text-blue-400 transition-colors"
               >
 
-                <FiPhone className="text-blue-400 text-lg flex-shrink-0" />
+                <FiPhone
+                  aria-hidden="true"
+                  className="text-blue-400 text-lg flex-shrink-0"
+                />
 
                 <span dir="ltr">
                   +31 (0) 10 485 7673
@@ -297,7 +323,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="w-8 h-8 flex items-center justify-center bg-white/5 rounded-md hover:bg-[#0F91D5] transition-colors"
                 >
-                  <FaFacebookF size={12}/>
+                  <FaFacebookF size={12} aria-hidden="true" />
                 </Link>
 
 
@@ -308,7 +334,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="w-8 h-8 flex items-center justify-center bg-white/5 rounded-md hover:bg-[#0F91D5] transition-colors"
                 >
-                  <FaInstagram size={12}/>
+                  <FaInstagram size={12} aria-hidden="true" />
                 </Link>
 
 
@@ -319,16 +345,18 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="w-8 h-8 flex items-center justify-center bg-white/5 rounded-md hover:bg-[#0F91D5] transition-colors"
                 >
-                  <FaTiktok size={12}/>
+                  <FaTiktok size={12} aria-hidden="true" />
                 </Link>
 
 
                 <Link
                   aria-label="LinkedIn"
-                  href="#"
+                  href={LINKEDIN_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-8 h-8 flex items-center justify-center bg-white/5 rounded-md hover:bg-[#0F91D5] transition-colors"
                 >
-                  <FaLinkedinIn size={12}/>
+                  <FaLinkedinIn size={12} aria-hidden="true" />
                 </Link>
 
 
@@ -351,7 +379,7 @@ export default function Footer() {
 
 
           <p>
-            {t.copyright}
+            {withCurrentYear(t.copyright)}
           </p>
 
 
@@ -368,9 +396,10 @@ export default function Footer() {
             </span>
 
 
+            {/* Name is already written next to the logo */}
             <Image
               src="/assets/footer/logo.webp"
-              alt="IT Solutions Worldwide"
+              alt=""
               width={18}
               height={18}
             />

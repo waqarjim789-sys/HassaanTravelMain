@@ -1,14 +1,28 @@
 import nodemailer from "nodemailer";
 import type { SendMailOptions } from "nodemailer";
 
-const smtpHost = process.env.SMTP_HOST;
-const smtpPort = Number(process.env.SMTP_PORT ?? 587);
+const BRAND_NAME = "Hassaan Travel";
+const BUSINESS_INBOX = "info@hassaantravel.nl";
+const DEFAULT_SMTP_PORT = 587;
+
+/** Treats missing and empty/whitespace-only env values the same way. */
+function clean(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
+}
+
+const smtpHost = clean(process.env.SMTP_HOST);
+
+const parsedPort = Number(clean(process.env.SMTP_PORT) ?? DEFAULT_SMTP_PORT);
+const smtpPort =
+  Number.isInteger(parsedPort) && parsedPort > 0 ? parsedPort : DEFAULT_SMTP_PORT;
+
+const smtpSecureSetting = clean(process.env.SMTP_SECURE);
 const smtpSecure =
-  process.env.SMTP_SECURE != null
-    ? process.env.SMTP_SECURE === "true"
-    : smtpPort === 465;
-const smtpUser = process.env.SMTP_USER;
-const smtpPass = process.env.SMTP_PASS;
+  smtpSecureSetting != null ? smtpSecureSetting === "true" : smtpPort === 465;
+
+const smtpUser = clean(process.env.SMTP_USER);
+const smtpPass = clean(process.env.SMTP_PASS);
 
 function createTransporter() {
   if (!smtpHost || !smtpUser || !smtpPass) {
@@ -30,9 +44,11 @@ function createTransporter() {
 
 export const sender = {
   email:
-    process.env.EMAIL_FROM_ADDRESS ?? process.env.EMAIL_FROM ?? smtpUser ??
-    "no-reply@example.com",
-  name: process.env.EMAIL_FROM_NAME ?? "My Travel App",
+    clean(process.env.EMAIL_FROM_ADDRESS) ??
+    clean(process.env.EMAIL_FROM) ??
+    smtpUser ??
+    BUSINESS_INBOX,
+  name: clean(process.env.EMAIL_FROM_NAME) ?? BRAND_NAME,
 };
 
 export async function sendMail(options: SendMailOptions) {

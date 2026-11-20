@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { Star } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { getDirection } from "@/i18n";
@@ -26,12 +27,14 @@ const OurCommitment = () => {
       dir={getDirection(language)}
       className="relative w-full py-12 sm:py-20 overflow-hidden flex items-center justify-center"
     >
-      {/* BACKGROUND IMAGE */}
-      <img
+      {/* BACKGROUND IMAGE (decorative) */}
+      <Image
         src="/assets/bgimage/h2.webp"
-        loading="lazy"
         alt=""
         aria-hidden="true"
+        fill
+        sizes="100vw"
+        loading="lazy"
         className="absolute inset-0 w-full h-full object-cover opacity-[0.18]"
       />
 
@@ -39,9 +42,13 @@ const OurCommitment = () => {
 
         {/* IMAGE SIDE (start side: left in LTR, right in RTL) */}
         <div className="relative">
-          <img
+          {/* Display size is set by CSS (w-full h-95 object-cover). */}
+          <Image
             src="/assets/about-us/customer.webp"
             alt=""
+            width={1200}
+            height={760}
+            sizes="(min-width: 768px) 50vw, 100vw"
             loading="lazy"
             className="rounded-2xl shadow-lg w-full h-95 object-cover"
           />

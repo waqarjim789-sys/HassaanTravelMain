@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import Image from "next/image";
 import { Hotel, Star, PlaneTakeoff, ChevronLeft, ChevronRight } from "lucide-react";
 import { PackagesBenefits } from "./PackagesBenefits";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -13,6 +14,8 @@ import { getPackagesTranslation } from "@/translations/packages";
 // Business data stays in English (owner decision). Only UI labels
 // are translated. Known label values ("On Request", "Custom",
 // "On request", "Any time") are translated at render time.
+// ⚠️ Nov 2026 review: several entries contain copied/mismatched data
+// (Afghanistan, Brazil, Canada). Owner to supply correct content.
 // =======================================================
 
 const packages = [
@@ -523,6 +526,7 @@ Please provide me with more details regarding availability and booking requireme
           {currentPackages.map((item) => {
             const currentImgIndex = activeImageIndexes[item.id] || 0;
             const numeric = isNumericPrice(item.price);
+            const currentImage = item.images[currentImgIndex] ?? item.images[0] ?? "";
 
             return (
               <div
@@ -530,8 +534,12 @@ Please provide me with more details regarding availability and booking requireme
                 className="bg-white/70 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden hover:scale-105 transition duration-300 flex flex-col h-full border border-white/30"
               >
                 <div className="relative group/slider">
-                  <img
-                    src={item.images[currentImgIndex]}
+                  {/* Display size is set by CSS (h-52 w-full object-cover). */}
+                  <Image
+                    src={currentImage}
+                    width={800}
+                    height={520}
+                    sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
                     className="h-52 w-full object-cover transition-all duration-300"
                     alt={interpolate(t.imageAlt, {
                       title: item.title,
@@ -572,6 +580,7 @@ Please provide me with more details regarding availability and booking requireme
                     )}
                   </div>
 
+                  {/* ⚠️ Static rating, identical on every package — owner to review. */}
                   <div dir="ltr" className="absolute bottom-0 bg-white rounded-md start-2 p-1 text-xs text-gray-500 mb-2">
                     ⭐ 4.8 (365)
                   </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { assistantText, type AssistantLocale } from "./hassaanAssistantText";
@@ -9,6 +10,13 @@ const PHONE = "31104857673"; // Preserved from the existing website widget.
 const TOPICS = ["Flights & prices", "Latest offers", "Holiday packages", "Umrah packages", "Visa assistance", "eSIM & connectivity", "Hotels & stays", "Change / cancel booking", "Custom travel quote"];
 const SYMBOLS = ["✈", "✦", "☀", "☾", "✓", "◎", "⌂", "↻", "◇"];
 const SESSION_KEY = "ht:assistant:nudges:v2";
+
+/**
+ * Source file is 1254×1254 (~1.6 MB). next/image serves a small optimized
+ * copy instead. Square 1:1 ratio, so the portrait can never be stretched.
+ */
+const CAPTAIN_SRC = "/assets/hassaan-assistant/captain.png";
+const CAPTAIN_SIZE = 128;
 
 export default function FloatingWhatsApp() {
   const { language } = useLanguage();
@@ -85,7 +93,7 @@ export default function FloatingWhatsApp() {
     </div>}
     {open && <div ref={panel} id={id} className={styles.panel} role="dialog" aria-modal="true" aria-labelledby={`${id}-title`}>
       <header className={styles.header}>
-        <img src="/assets/hassaan-assistant/captain.png" alt="" className={styles.portrait} />
+        <Image src={CAPTAIN_SRC} alt="" width={CAPTAIN_SIZE} height={CAPTAIN_SIZE} className={styles.portrait} />
         <div><span className={styles.brand}>HASSAAN TRAVEL</span><h2 id={`${id}-title`}>{t.subtitle}</h2><small>WhatsApp</small></div>
         <button className={styles.close} onClick={() => {setOpen(false); launcher.current?.focus();}} aria-label={t.close}>×</button>
       </header>
@@ -108,7 +116,7 @@ export default function FloatingWhatsApp() {
     </div>}
     <button ref={launcher} type="button" className={`${styles.launcher} ${open ? styles.active : ""}`} onClick={() => {if(open) setOpen(false); else show();}} aria-label={open ? t.close : t.subtitle} aria-expanded={open} aria-controls={open ? id : undefined} aria-haspopup="dialog">
       <span className={styles.smoke} aria-hidden="true" />
-      <img src="/assets/hassaan-assistant/captain.png" alt="" />
+      <Image src={CAPTAIN_SRC} alt="" width={CAPTAIN_SIZE} height={CAPTAIN_SIZE} />
       <span className={styles.badge} aria-hidden="true">↗</span>
     </button>
   </div>;

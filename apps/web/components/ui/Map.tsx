@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { MapPin, Phone, Mail } from "lucide-react";
 import MapForm from "../layout/home/MapForm";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -77,6 +78,9 @@ const getMapTranslation = createTranslator(
   }
 );
 
+const PHONE_HREF = "tel:+31104857673";
+const PHONE_DISPLAY = "+31 (0) 10 485 7673";
+
 const Map = () => {
   const { language } = useLanguage();
   const map = getMapTranslation(language);
@@ -88,11 +92,13 @@ const Map = () => {
       dir={getDirection(language)}
     >
       {/* Decorative background image */}
-      <img
+      <Image
         src="/assets/bgimage/h2.webp"
-        loading="lazy"
         alt=""
         aria-hidden="true"
+        fill
+        sizes="100vw"
+        loading="lazy"
         className="absolute inset-0 w-full h-full object-cover opacity-[0.21] z-0"
       />
 
@@ -156,8 +162,8 @@ const Map = () => {
 
               <div className="min-w-0">
                 <p className="text-xs text-gray-400">{map.phone}</p>
-                <a href="tel:+31104857673" dir="ltr" className="text-sm font-medium">
-                  +31 10 485 7673
+                <a href={PHONE_HREF} dir="ltr" className="text-sm font-medium">
+                  {PHONE_DISPLAY}
                 </a>
               </div>
             </article>

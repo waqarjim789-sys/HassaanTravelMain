@@ -2,12 +2,30 @@
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
 
-  "globalEnv": ["DATABASE_URL", "JWT_SECRET"],
+  "globalEnv": ["DATABASE_URL", "JWT_SECRET", "NODE_ENV"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": [
+        "ESIM_ACCESS_CODE",
+        "ESIM_SECRET_KEY",
+        "ESIM_ADMIN_API_TOKEN",
+
+        "SMTP_HOST",
+        "SMTP_PORT",
+        "SMTP_SECURE",
+        "SMTP_USER",
+        "SMTP_PASS",
+        "EMAIL_FROM_ADDRESS",
+        "EMAIL_FROM",
+        "EMAIL_FROM_NAME",
+        "EMAIL_TO",
+
+        "GMAIL_USER",
+        "GMAIL_APP_PASSWORD"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]

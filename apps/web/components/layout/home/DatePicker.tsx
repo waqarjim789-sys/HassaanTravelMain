@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 import { useLanguage } from "@/components/LanguageProvider";
 import { getDirection } from "@/i18n";

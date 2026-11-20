@@ -1,4 +1,5 @@
 import React from 'react'
+import Image from "next/image";
 
 interface Section {
   id: number;
@@ -268,10 +269,12 @@ const TermsAndConditions = () => {
 
           {/* IMAGE RIGHT ALIGNED */}
           <div className="flex justify-center items-start pt-4">
-            <img
-              src={termsData.sections[0]?.image}
+              <Image
+              src={termsData.sections[0]?.image ?? "/assets/terms.webp"}
               alt="Algemene voorwaarden"
-              className="w-full max-w-md max-h-90 object-contain rounded-2xl"
+              width={448}
+              height={360}
+              className="w-full h-auto max-w-md max-h-90 object-contain rounded-2xl"
             />
           </div>
         </div>

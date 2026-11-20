@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "@/components/LanguageProvider";
 import { getDirection } from "@/i18n";
@@ -54,9 +55,11 @@ const Services = () => {
               >
                 {/* IMAGE CONTAINER */}
                 <div className="w-full h-[200px] relative rounded-2xl overflow-hidden mb-5">
-                  <img
+                  <Image
                     src={service.img}
                     alt={item.imageAlt}
+                    fill
+                    sizes="(min-width: 768px) 33vw, 100vw"
                     loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover"
                   />

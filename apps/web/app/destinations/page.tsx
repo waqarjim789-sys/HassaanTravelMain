@@ -1,8 +1,6 @@
 "use client";
 
 import { resolveLocale } from "@/lib/createTranslator";
-import { IoLocationSharp } from "react-icons/io5";
-import { BsFillAirplaneFill } from "react-icons/bs";
 import Testimonials from "@/components/ui/Testimonials";
 import CommonHeader from "@/components/ui/CommonHeader";
 import HeroSection from "@/components/layout/destination/HeroSection";

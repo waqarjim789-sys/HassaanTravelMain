@@ -19,7 +19,7 @@ export const footerTranslations = {
     generalTerms: "General Terms",
 
     copyright:
-      "Copyright © 2006 - 2026 HassaanTravel V.O.F | All rights reserved",
+      "Copyright © 2009 – 2026 HassaanTravel V.O.F | All rights reserved",
 
     poweredBy: "Powered by",
   },
@@ -41,11 +41,11 @@ export const footerTranslations = {
     about: "Over ons",
     contact: "Contact",
     privacyPolicy: "Privacybeleid",
-    termsConditions: "Algemene voorwaarden",
+    termsConditions: "Voorwaarden",
     generalTerms: "Algemene voorwaarden",
 
     copyright:
-      "Copyright © 2006 - 2026 HassaanTravel V.O.F | Alle rechten voorbehouden",
+      "Copyright © 2009 – 2026 HassaanTravel V.O.F | Alle rechten voorbehouden",
 
     poweredBy: "Mogelijk gemaakt door",
   },
@@ -66,12 +66,12 @@ export const footerTranslations = {
     company: "Unternehmen",
     about: "Über uns",
     contact: "Kontakt",
-    privacyPolicy: "Datenschutzrichtlinie",
+    privacyPolicy: "Datenschutzerklärung",
     termsConditions: "Allgemeine Geschäftsbedingungen",
     generalTerms: "Allgemeine Bedingungen",
 
     copyright:
-      "Copyright © 2006 - 2026 HassaanTravel V.O.F | Alle Rechte vorbehalten",
+      "Copyright © 2009 – 2026 HassaanTravel V.O.F | Alle Rechte vorbehalten",
 
     poweredBy: "Unterstützt durch",
   },
@@ -81,7 +81,7 @@ export const footerTranslations = {
     description:
       "Nous travaillons efficacement et avec une approche orientée client. La relation client et la qualité du voyage sont nos priorités.",
 
-    iata: "ACCREDITÉ IATA",
+    iata: "ACCRÉDITÉ IATA",
 
     services: "Services",
     airlineTickets: "Billets d'avion",
@@ -93,11 +93,11 @@ export const footerTranslations = {
     about: "À propos",
     contact: "Contact",
     privacyPolicy: "Politique de confidentialité",
-    termsConditions: "Conditions générales",
+    termsConditions: "Termes et conditions",
     generalTerms: "Conditions générales",
 
     copyright:
-      "Copyright © 2006 - 2026 HassaanTravel V.O.F | Tous droits réservés",
+      "Copyright © 2009 – 2026 HassaanTravel V.O.F | Tous droits réservés",
 
     poweredBy: "Propulsé par",
   },
@@ -123,7 +123,7 @@ export const footerTranslations = {
     generalTerms: "Condizioni generali",
 
     copyright:
-      "Copyright © 2006 - 2026 HassaanTravel V.O.F | Tutti i diritti riservati",
+      "Copyright © 2009 – 2026 HassaanTravel V.O.F | Tutti i diritti riservati",
 
     poweredBy: "Realizzato da",
   },
@@ -149,7 +149,7 @@ export const footerTranslations = {
     generalTerms: "Condiciones generales",
 
     copyright:
-      "Copyright © 2006 - 2026 HassaanTravel V.O.F | Todos los derechos reservados",
+      "Copyright © 2009 – 2026 HassaanTravel V.O.F | Todos los derechos reservados",
 
     poweredBy: "Desarrollado por",
   },
@@ -175,7 +175,7 @@ export const footerTranslations = {
     generalTerms: "الشروط العامة",
 
     copyright:
-      "حقوق النشر © 2006 - 2026 حسّان ترافل V.O.F | جميع الحقوق محفوظة",
+      "حقوق النشر © 2009 – 2026 HassaanTravel V.O.F | جميع الحقوق محفوظة",
 
     poweredBy: "مدعوم بواسطة",
   },
@@ -201,7 +201,7 @@ export const footerTranslations = {
     generalTerms: "عمومی شرائط",
 
     copyright:
-      "کاپی رائٹ © 2006 - 2026 حسّان ٹریول V.O.F | تمام حقوق محفوظ ہیں",
+      "کاپی رائٹ © 2009 – 2026 HassaanTravel V.O.F | تمام حقوق محفوظ ہیں",
 
     poweredBy: "تیار کردہ",
   },

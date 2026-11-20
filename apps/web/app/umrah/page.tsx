@@ -36,14 +36,6 @@ const imageData = [
   "/assets/umrah/4.webp",
 ];
 
-// Preserved from the original file; currently not passed to <Faqs />.
-const faqImasgesLinks = [
-  "/assets/umrah/faq1.webp",
-  "/assets/umrah/faq2.webp",
-  "/assets/umrah/faq3.webp",
-  "/assets/umrah/faq4.webp",
-];
-
 const UmrahPage: React.FC = () => {
   const { language } = useLanguage();
   const t = getUmrahTranslation(language);

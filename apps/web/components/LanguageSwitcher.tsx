@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
 
 import {
@@ -34,6 +35,11 @@ const FLAG_CODES: Record<string, string> = {
   ur: "pk",
 };
 
+/**
+ * Flags come from flagcdn.com. `unoptimized` serves them as-is: no
+ * next.config remotePatterns needed, and tiny flag files gain nothing
+ * from image optimization. The 80px source stays sharp on retina screens.
+ */
 function Flag({
   code,
   size = 22,
@@ -43,17 +49,18 @@ function Flag({
 }) {
   const countryCode =
     FLAG_CODES[code.toLowerCase()] || "gb";
+  const height = Math.round(size * 0.67);
 
   return (
-    <img
-      src={`https://flagcdn.com/w40/${countryCode}.png`}
-      srcSet={`https://flagcdn.com/w80/${countryCode}.png 2x`}
+    <Image
+      src={`https://flagcdn.com/w80/${countryCode}.png`}
       alt=""
       width={size}
-      height={Math.round(size * 0.67)}
+      height={height}
+      unoptimized
       style={{
         width: `${size}px`,
-        height: `${Math.round(size * 0.67)}px`,
+        height: `${height}px`,
         objectFit: "cover",
         display: "inline-block",
         borderRadius: "2px",

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 
 interface Section {
   id: number;
@@ -115,7 +116,7 @@ const PrivacyPolicy = () => {
 
         {/* INTRO DESCRIPTION */}
         <p className="text-sm text-gray-700 leading-relaxed mb-6">
-          The protection of your personal data is of great importance to Hassaan Travel (hereinafter ‘HT’). On this page we explain to you, how we handle your data. HT's privacy statement has been prepared in accordance with the General Data Protection Regulation (hereinafter ‘AVG’) and is for all persons who purchase a service or product from HT.
+          The protection of your personal data is of great importance to Hassaan Travel (hereinafter ‘HT’). On this page we explain to you, how we handle your data. HT’s privacy statement has been prepared in accordance with the General Data Protection Regulation (hereinafter ‘AVG’) and is for all persons who purchase a service or product from HT.
         </p>
 
         {/* FIRST TWO COLUMN SECTION (Article 1 & 2 side by side with Image) */}
@@ -148,10 +149,12 @@ const PrivacyPolicy = () => {
 
           {/* SIDE IMAGE GRAPHIC */}
           <div className="flex justify-center items-start pt-4">
-            <img
+              <Image
               src="/assets/terms.webp"
               alt="Privacy Policy Graphic"
-              className="w-full max-w-md max-h-90 object-contain rounded-2xl"
+              width={448}
+              height={360}
+              className="w-full h-auto max-w-md max-h-90 object-contain rounded-2xl"
             />
           </div>
         </div>
